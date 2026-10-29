@@ -43,6 +43,22 @@ ex_method = "linear"
 # BIX denominator: em 430 nm (Huguet et al. 2009).
 bix_em_den = 430
 
+[parafac]
+# Exploratory models (Murphy et al. 2013). PROPOSED.
+ranks = [2, 3, 4, 5, 6, 7]
+n_init = 10
+normalization = "norm"   # each sample scaled to unit Frobenius norm, scores scaled back
+tol = 1e-6               # exploratory; the final model is refitted with 1e-8
+max_iter = 5000
+random_state = 0
+exclude = []             # sample_ids left out of the model (outliers), with reasons in notes
+
+[parafac.split_half]
+n_init = 5
+stratify = ["river", "campaign"]  # each quarter gets a similar mix of rivers and dates
+random_state = 0
+threshold = 0.95                  # Tucker congruence, Lorenzo-Seva & ten Berge (2006)
+
 [missing]
 # Samples lacking a blank or absorbance: "error", "drop" or "keep".
 policy = "error"
