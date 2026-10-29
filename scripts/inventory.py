@@ -553,7 +553,17 @@ def build_pairing(eem: pd.DataFrame, ab: pd.DataFrame) -> pd.DataFrame:
             ))
     df = pd.DataFrame(out)
     df.insert(0, "pair_id", [f"P{i:03d}" for i in range(1, len(df) + 1)])
+    df.insert(1, "sample_id", [sample_id(r) for r in df.itertuples()])
     return df
+
+
+def sample_id(r) -> str:
+    """Readable unique id, e.g. 'Orcia_2024-05_S1bis_R2' or 'Merse_2024-05_S5_R1_ME'."""
+    if r.site:
+        return f"{r.river}_{r.campaign}_S{r.site}_R{r.replicate}" + (
+            f"_{r.variant}" if r.variant else "")
+    stem = Path(r.eem_file or r.abs_file).stem.replace(" ", "")
+    return f"{r.river}_{r.campaign}_{stem}"
 
 
 # --------------------------------------------------------------------------- #

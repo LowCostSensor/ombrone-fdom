@@ -10,3 +10,6 @@ dependencies:
   - matplotlib
   - pytest
   - git
+  - pip
+  - pip:
+      - -e ../eemkit[dev]
