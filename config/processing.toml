@@ -33,13 +33,14 @@ interpolate = false
 ex_min = 240
 
 [indices]
+# Confirmed by the data owner on 2026-10-29 (comparisons in outputs/indices/indices_report.md).
 # Computed on the EEM after inner-filter, blank subtraction and Raman normalisation,
-# before scatter removal and crop (peak B at ex 275/em 310 lies in the Raman band). PROPOSED.
+# before scatter removal and crop (peak B at ex 275/em 310 lies in the Raman band).
 stage = "after_raman"
-# Excitations off the 10 nm grid (HIX 254, peaks B/T 275, M 312): "linear" between
-# neighbouring scans, "nearest", or "exact". PROPOSED.
+# Excitations off the 10 nm grid (HIX 254, peaks B/T 275, M 312): linear interpolation
+# between neighbouring scans.
 ex_method = "linear"
-# BIX denominator: em 430 nm (Huguet et al. 2009). PROPOSED.
+# BIX denominator: em 430 nm (Huguet et al. 2009).
 bix_em_den = 430
 
 [missing]
