@@ -1,0 +1,36 @@
+# Phase 2 processing parameters for the Ombrone dataset.
+# Each value is a scientific choice; all are copied into the dataset history.
+# Values marked PROPOSED come from outputs/phase2 diagnostics and await confirmation.
+
+[inner_filter]
+# Absorbance-based correction, Kothawala et al. (2013). Path lengths in cm.
+# REQUIRED: not yet provided. scripts/correct.py refuses to run while empty.
+absorbance_path_length_cm = ""
+fluorescence_path_length_cm = ""
+
+[raman]
+# Lawaetz & Stedmon (2009): Ex 350 nm, Em 381-426 nm, no baseline. PROPOSED.
+ex = 350
+em_range = [381, 426]
+baseline = false
+
+[scatter]
+# Water Raman shift: blanks give a median of 3406 cm-1 (3300-3441). PROPOSED.
+raman_shift_cm1 = 3400
+# Band widths (below, above) in nm. PROPOSED from the measured band edges.
+rayleigh1 = [10, 10]
+raman1 = [8, 8]
+rayleigh2 = [12, 12]
+raman2 = [10, 10]
+# Zeros at em < ex - 10 nm (Thygesen et al. 2004). PROPOSED.
+zero_below_rayleigh = 10
+# Leave removed bands as NaN for PARAFAC. PROPOSED.
+interpolate = false
+
+[crop]
+# Excitations below 240 nm are noisy (replicate CV, blank share, negatives). PROPOSED.
+ex_min = 240
+
+[missing]
+# Samples lacking a blank or absorbance: "error", "drop" or "keep".
+policy = "error"

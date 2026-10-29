@@ -4,6 +4,8 @@ channels:
 dependencies:
   - python=3.12
   - numpy
+  # MKL 2026.1 crashes in BLAS calls on this machine (0xc06d007f); use OpenBLAS
+  - libblas=*=*openblas
   - pandas
   - xarray
   - scipy
