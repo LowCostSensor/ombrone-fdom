@@ -1,0 +1,12 @@
+name: fdom-eem
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - xarray
+  - scipy
+  - matplotlib
+  - pytest
+  - git
