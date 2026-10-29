@@ -1,34 +1,35 @@
 # Phase 2 processing parameters for the Ombrone dataset.
 # Each value is a scientific choice; all are copied into the dataset history.
-# Values marked PROPOSED come from outputs/phase2 diagnostics and await confirmation.
+# Raman, scatter and crop values were derived from outputs/phase2 diagnostics
+# and confirmed by the data owner on 2026-10-29.
 
 [inner_filter]
 # Absorbance-based correction, Kothawala et al. (2013). Path lengths in cm.
-# REQUIRED: not yet provided. scripts/correct.py refuses to run while empty.
-absorbance_path_length_cm = ""
-fluorescence_path_length_cm = ""
+# Provided by the data owner on 2026-10-29: 10 mm cuvettes (one value given, used for both).
+absorbance_path_length_cm = 1.0
+fluorescence_path_length_cm = 1.0
 
 [raman]
-# Lawaetz & Stedmon (2009): Ex 350 nm, Em 381-426 nm, no baseline. PROPOSED.
+# Lawaetz & Stedmon (2009): Ex 350 nm, Em 381-426 nm, no baseline.
 ex = 350
 em_range = [381, 426]
 baseline = false
 
 [scatter]
-# Water Raman shift: blanks give a median of 3406 cm-1 (3300-3441). PROPOSED.
+# Water Raman shift: blanks give a median of 3406 cm-1 (3300-3441).
 raman_shift_cm1 = 3400
-# Band widths (below, above) in nm. PROPOSED from the measured band edges.
+# Band widths (below, above) in nm, from the measured band edges.
 rayleigh1 = [10, 10]
 raman1 = [8, 8]
 rayleigh2 = [12, 12]
 raman2 = [10, 10]
-# Zeros at em < ex - 10 nm (Thygesen et al. 2004). PROPOSED.
+# Zeros at em < ex - 10 nm (Thygesen et al. 2004).
 zero_below_rayleigh = 10
-# Leave removed bands as NaN for PARAFAC. PROPOSED.
+# Removed bands stay NaN for PARAFAC.
 interpolate = false
 
 [crop]
-# Excitations below 240 nm are noisy (replicate CV, blank share, negatives). PROPOSED.
+# Excitations below 240 nm are noisy (replicate CV, blank share, negatives).
 ex_min = 240
 
 [missing]
