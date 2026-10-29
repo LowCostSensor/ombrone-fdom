@@ -32,6 +32,16 @@ interpolate = false
 # Excitations below 240 nm are noisy (replicate CV, blank share, negatives).
 ex_min = 240
 
+[indices]
+# Computed on the EEM after inner-filter, blank subtraction and Raman normalisation,
+# before scatter removal and crop (peak B at ex 275/em 310 lies in the Raman band). PROPOSED.
+stage = "after_raman"
+# Excitations off the 10 nm grid (HIX 254, peaks B/T 275, M 312): "linear" between
+# neighbouring scans, "nearest", or "exact". PROPOSED.
+ex_method = "linear"
+# BIX denominator: em 430 nm (Huguet et al. 2009). PROPOSED.
+bix_em_den = 430
+
 [missing]
 # Samples lacking a blank or absorbance: "error", "drop" or "keep".
 policy = "error"

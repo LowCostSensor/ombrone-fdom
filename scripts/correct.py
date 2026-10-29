@@ -26,6 +26,24 @@ def path_length(cfg: dict, key: str) -> float:
     return float(val)
 
 
+def load_config(path: Path) -> dict:
+    return tomllib.loads(path.read_text(encoding="utf-8"))
+
+
+def correct_until_raman(ds: xr.Dataset, cfg: dict) -> xr.Dataset:
+    """Absorbance blank, inner filter, EEM blank and Raman normalisation."""
+    l_abs = path_length(cfg, "absorbance_path_length_cm")
+    l_fl = path_length(cfg, "fluorescence_path_length_cm")
+    missing = cfg["missing"]["policy"]
+    ds = C.subtract_absorbance_blank(ds, missing=missing)
+    ds = C.correct_inner_filter(ds, absorbance_path_length_cm=l_abs,
+                                fluorescence_path_length_cm=l_fl, missing=missing)
+    ds = C.subtract_blank(ds, missing=missing)
+    r = cfg["raman"]
+    return C.normalize_raman(ds, ex=r["ex"], em_range=tuple(r["em_range"]),
+                             baseline=r["baseline"], missing=missing)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -33,19 +51,9 @@ def main() -> None:
     ap.add_argument("--config", default=Path("config/processing.toml"), type=Path)
     ap.add_argument("--out", default=Path("outputs/ombrone_corrected.nc"), type=Path)
     args = ap.parse_args()
-    cfg = tomllib.loads(args.config.read_text(encoding="utf-8"))
-    l_abs = path_length(cfg, "absorbance_path_length_cm")
-    l_fl = path_length(cfg, "fluorescence_path_length_cm")
-    missing = cfg["missing"]["policy"]
+    cfg = load_config(args.config)
 
-    ds = xr.load_dataset(args.dataset, engine="scipy")
-    ds = C.subtract_absorbance_blank(ds, missing=missing)
-    ds = C.correct_inner_filter(ds, absorbance_path_length_cm=l_abs,
-                                fluorescence_path_length_cm=l_fl, missing=missing)
-    ds = C.subtract_blank(ds, missing=missing)
-    r = cfg["raman"]
-    ds = C.normalize_raman(ds, ex=r["ex"], em_range=tuple(r["em_range"]),
-                           baseline=r["baseline"], missing=missing)
+    ds = correct_until_raman(xr.load_dataset(args.dataset, engine="scipy"), cfg)
     s = cfg["scatter"]
     widths = {b: tuple(s[b]) for b in C.scatter.BANDS if b in s}
     ds = C.remove_scatter(ds, widths=widths, raman_shift_cm1=s["raman_shift_cm1"],
