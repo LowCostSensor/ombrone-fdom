@@ -10,7 +10,10 @@ dependencies:
   - xarray
   - scipy
   - matplotlib
+  - pyside6>=6.6      # eemkit desktop application
   - pytest
+  - pytest-qt
+  - pyinstaller       # stand-alone build of the application
   - git
   - pip
   - pip:

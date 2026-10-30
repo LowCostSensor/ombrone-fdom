@@ -68,8 +68,7 @@ def processing_steps(raw: xr.Dataset, cfg: dict, sample: str) -> dict[str, xr.Da
 
 
 def summary(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path, index_col="rank").rename(
-        columns={"explained_pct": "explained_variance_pct"})
+    return pd.read_csv(path, index_col="rank")
 
 
 def main() -> None:
