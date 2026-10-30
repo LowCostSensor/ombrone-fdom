@@ -1,0 +1,475 @@
+<title>Guida all'app eemkit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Layout: a lab manual. Sticky contents rail on the left (wide screens), one reading
+   column; screenshots break out to the full width of the content area. */
+:root {
+  --paper: #fbfbf9;
+  --ink: #1d1f22;
+  --ink-2: #55585e;
+  --rule: #e2e3df;
+  --accent: #2a78d6;
+  --accent-soft: #e8f0fb;
+  --warn: #7a5000;
+  --warn-bg: #fff4d6;
+  --code-bg: #f1f2ef;
+  --shot-edge: rgba(29, 31, 34, 0.14);
+  --f-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16181b; --ink: #e9eaec; --ink-2: #a9adb3; --rule: #2c2f33;
+    --accent: #6aa5ec; --accent-soft: #1c2a3c; --warn: #f0c062; --warn-bg: #3a2f15;
+    --code-bg: #1f2226; --shot-edge: rgba(255, 255, 255, 0.14);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #16181b; --ink: #e9eaec; --ink-2: #a9adb3; --rule: #2c2f33;
+  --accent: #6aa5ec; --accent-soft: #1c2a3c; --warn: #f0c062; --warn-bg: #3a2f15;
+  --code-bg: #1f2226; --shot-edge: rgba(255, 255, 255, 0.14);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 16px/1.62 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 80px;
+}
+.page {
+  max-width: 1180px; margin: 0 auto;
+  display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px;
+}
+nav.toc {
+  position: sticky; top: calc(24px + env(safe-area-inset-top, 0px));
+  align-self: start; font-size: 14px;
+}
+nav.toc p { margin: 0 0 10px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+nav.toc a { color: var(--ink-2); text-decoration: none; display: block; padding: 2px 0 2px 10px; border-left: 2px solid var(--rule); }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+main { min-width: 0; }
+.prose { max-width: 70ch; }
+
+h1, h2, h3 { text-wrap: balance; }
+h1 { font: 600 2.6rem/1.1 var(--f-display); margin: 0 0 12px; letter-spacing: -0.01em; }
+h2 { font: 600 1.75rem/1.2 var(--f-display); margin: 64px 0 14px; padding-top: 18px; border-top: 1px solid var(--rule); }
+h3 { font: 600 1.05rem/1.35 var(--f-body); margin: 32px 0 8px; }
+p { margin: 0 0 14px; }
+.lede { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.meta { font-size: 13px; color: var(--ink-2); margin-bottom: 28px; }
+a { color: var(--accent); }
+ul, ol { padding-left: 1.3em; margin: 0 0 14px; }
+li { margin-bottom: 6px; }
+li > ul { margin-top: 6px; }
+strong { font-weight: 600; }
+
+code, .path { font-family: var(--f-mono); font-size: 0.88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre { font-family: var(--f-mono); font-size: 14px; line-height: 1.5; background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; margin: 0 0 16px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+/* labels exactly as they appear in the app (English) */
+.ui {
+  font-family: var(--f-body); font-size: 0.86em; font-weight: 500; white-space: nowrap;
+  border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px;
+  padding: 0 6px; background: var(--paper); color: var(--ink);
+}
+
+.flow { counter-reset: step; list-style: none; padding: 0; display: grid; gap: 10px; }
+.flow li { counter-increment: step; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; margin: 0; }
+.flow li::before {
+  content: counter(step); font: 600 15px/30px var(--f-mono); text-align: center;
+  width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+}
+
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 18px 0; max-width: 70ch; }
+.note.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.note .label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; color: var(--accent); }
+.note.warn .label { color: var(--warn); }
+
+figure { margin: 22px 0 28px; }
+figure a { display: block; }
+figure img { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid var(--shot-edge); border-radius: 6px; }
+figcaption { font-size: 14px; color: var(--ink-2); margin-top: 8px; max-width: 75ch; }
+
+.table-wrap { overflow-x: auto; margin: 0 0 18px; max-width: 100%; }
+table { border-collapse: collapse; font-size: 14.5px; min-width: 520px; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--rule); }
+th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+td:first-child { white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; }
+
+.swatch { display: inline-block; width: 0.9em; height: 0.9em; border-radius: 2px; vertical-align: -0.1em; border: 1px solid var(--shot-edge); }
+
+@media (max-width: 960px) {
+  .page { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  nav.toc { position: static; border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+  h1 { font-size: 2.1rem; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="page">
+  <nav class="toc" aria-label="Indice">
+    <p>Indice</p>
+    <ol>
+      <li><a href="#cos-e">Che cos'è</a></li>
+      <li><a href="#avvio">Avviare l'app</a></li>
+      <li><a href="#concetti">Cinque cose da sapere</a></li>
+      <li><a href="#flusso">Il flusso di lavoro</a></li>
+      <li><a href="#progetto">1 · Progetto e abbinamento</a></li>
+      <li><a href="#correzioni">2 · Correzioni</a></li>
+      <li><a href="#indici">3 · Indici</a></li>
+      <li><a href="#parafac">4 · PARAFAC</a></li>
+      <li><a href="#export">5 · Esportazione</a></li>
+      <li><a href="#menu">Menu e salvataggio</a></li>
+      <li><a href="#script">Rifare tutto da script</a></li>
+      <li><a href="#problemi">Problemi comuni</a></li>
+      <li><a href="#limiti">Limiti attuali</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <h1 id="cos-e">Guida all'app eemkit</h1>
+      <p class="lede">Come usare l'applicazione desktop di eemkit per passare dai file CSV del Cary Eclipse e del Cary 60 a EEM corretti, indici di fluorescenza e un modello PARAFAC validato.</p>
+      <p class="meta">eemkit 0.1.0.dev0 · app in PySide6 · schermate fatte sui dati dell'Ombrone 2024</p>
+
+      <p>L'app è un'interfaccia sopra la libreria eemkit: non fa calcoli suoi. Ogni pulsante chiama le stesse funzioni usate dagli script dell'Ombrone (<code>eemkit.pipeline</code>), e sui dati reali produce gli stessi risultati: il modello a 3 componenti ottenuto nell'app ha varianza spiegata 99,017 %, core consistency 85,5 % e split-half 0,9915, come nella Fase 4.</p>
+      <p>Le etichette dell'app sono in inglese. In questa guida le trovi scritte così: <span class="ui">Apply corrections</span>, cioè esattamente come appaiono sullo schermo.</p>
+    </div>
+
+    <div class="prose">
+      <h2 id="avvio">Avviare l'app</h2>
+      <h3>Dall'ambiente conda (consigliato)</h3>
+      <pre><code>conda activate fdom-eem
+eemkit-gui</code></pre>
+      <p>Per aprire direttamente un progetto, passa il file come argomento:</p>
+      <pre><code>python -m eemkit.gui percorso\del\progetto.toml</code></pre>
+
+      <h3>Il progetto dell'Ombrone, già pronto</h3>
+      <p>Ho preparato <span class="path">ombrone-fdom/outputs/ombrone_project.toml</span>: contiene i parametri confermati in <code>config/processing.toml</code>, il percorso della tua cartella dei dati, la tabella <code>config/pairing.csv</code> e una cartella di uscita <code>outputs/gui</code>. Aprilo con <span class="ui">File</span> → <span class="ui">Open project…</span> e passa subito al punto 3 del <a href="#flusso">flusso</a>.</p>
+
+      <h3>Eseguibile Windows (senza Python)</h3>
+      <p>Ho costruito una versione autonoma in <span class="path">%TEMP%\ekb\dist\eemkit\eemkit.exe</span> (circa 160 MB). Sta in una cartella temporanea che Windows può svuotare: per tenerla, copia l'intera cartella <code>eemkit</code>. Per ricostruirla, da un ambiente <em>attivato</em>:</p>
+      <pre><code>cd eemkit\packaging
+pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
+      <div class="note">
+        <span class="label">Se l'eseguibile si chiude subito</span>
+        <p>Il motivo è scritto in <span class="path">eemkit-crash.log</span> nella cartella temporanea (<code>%TEMP%</code>).</p>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h2 id="concetti">Cinque cose da sapere</h2>
+      <ol>
+        <li><strong>Il progetto è un file di impostazioni.</strong> Salvare il progetto scrive un file <code>.toml</code> con tutti i parametri e i percorsi, nello stesso formato di <code>processing.toml</code>. Non salva i risultati: quelli si ricalcolano dal file, oppure si esportano dalla scheda 5.</li>
+        <li><strong>La cartella dei dati è in sola lettura.</strong> L'app non scrive, non rinomina e non sposta nulla lì dentro, e rifiuta di salvarci progetto, tabella o risultati.</li>
+        <li><strong>Nessun abbinamento silenzioso.</strong> L'app usa solo le righe della tabella degli abbinamenti con <code>include = yes</code>. Le righe proposte automaticamente partono sempre escluse.</li>
+        <li><strong>I risultati non restano mai superati.</strong> Se cambi un parametro, l'app scarta i risultati che ne dipendevano: per esempio, cambiare la larghezza di una banda di scattering cancella i modelli PARAFAC già calcolati, che vanno ricalcolati.</li>
+        <li><strong>I calcoli lunghi girano in background.</strong> In basso compaiono una barra di avanzamento e il pulsante <span class="ui">Cancel</span>; l'annullamento ha effetto alla fine del modello in corso. Se un calcolo produce avvisi (per esempio un modello che non converge), compare il pulsante <span class="ui">⚠ N warnings</span>: cliccalo e leggili prima di usare i risultati.</li>
+      </ol>
+    </div>
+
+    <div class="prose">
+      <h2 id="flusso">Il flusso di lavoro</h2>
+      <p>Le cinque schede seguono l'ordine dell'analisi. Ogni passo usa il risultato del precedente.</p>
+      <ol class="flow">
+        <li><div><strong>Scegli le cartelle</strong> (scheda 1): dati, tabella degli abbinamenti, uscita. Oppure apri un progetto esistente.</div></li>
+        <li><div><strong>Prepara la tabella degli abbinamenti</strong> (scheda 1): aprila se esiste già; altrimenti scansiona la cartella, genera la bozza, controlla e includi le righe.</div></li>
+        <li><div><strong>Carica i dati</strong> con <span class="ui">3. Check and load data</span>.</div></li>
+        <li><div><strong>Applica le correzioni</strong> (scheda 2) e controlla qualche campione nell'anteprima.</div></li>
+        <li><div><strong>Calcola gli indici</strong> (scheda 3).</div></li>
+        <li><div><strong>Esplora i modelli PARAFAC</strong> (scheda 4), guarda la diagnostica e i campioni anomali, poi calcola il modello finale.</div></li>
+        <li><div><strong>Esporta</strong> (scheda 5) e salva il progetto.</div></li>
+      </ol>
+    </div>
+
+    <section>
+      <div class="prose">
+        <h2 id="progetto">1 · Progetto e abbinamento</h2>
+        <p>Questa scheda decide quali file vengono letti e come sono abbinati tra loro.</p>
+      </div>
+      <figure>
+        <a href="img/1_project.png"><img src="img/1_project.png" alt="Scheda Project and pairing con la tabella degli abbinamenti dell'Ombrone" width="1500" height="950" loading="lazy"></a>
+        <figcaption>La tabella dell'Ombrone caricata: 227 righe, 205 incluse. In basso, il riquadro dei messaggi conferma la lettura di 205 campioni, tutti con bianco EEM e assorbanza.</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>I tre percorsi</h3>
+        <ul>
+          <li><span class="ui">Data folder</span>: la cartella con i CSV degli strumenti (per te, <span class="path">Progetto PARAFAC</span> su OneDrive).</li>
+          <li><span class="ui">Pairing table</span>: il file CSV con gli abbinamenti. <span class="ui">Open…</span> ne apre uno esistente.</li>
+          <li><span class="ui">Output folder</span>: dove la scheda 5 scrive i risultati. Non può stare dentro la cartella dei dati.</li>
+        </ul>
+
+        <h3>I pulsanti, nell'ordine</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Pulsante</th><th>Cosa fa</th></tr></thead>
+            <tbody>
+              <tr><td><span class="ui">1. Scan data folder</span></td><td>Legge le prime due righe di ogni CSV (anche nelle sottocartelle) e lo classifica: EEM del Cary Eclipse 3-D, assorbanza del Cary 60, oppure non riconosciuto. I file <code>.FDSW</code> e <code>.BSW</code> sono ignorati. Il risultato è nella sotto-scheda <span class="ui">Files found</span>; i file non usati, con il motivo, compaiono nel riquadro dei messaggi.</td></tr>
+              <tr><td><span class="ui">2. Draft pairing from scan</span></td><td>Propone una riga per ogni EEM che non è un bianco (vedi sotto). Se esiste già una tabella, chiede prima di sostituirla.</td></tr>
+              <tr><td><span class="ui">Include selected rows</span></td><td>Mette <code>include = yes</code> sulle righe selezionate e le segna come controllate (<code>pairing_status = checked</code>). Usalo solo dopo aver verificato quelle righe.</td></tr>
+              <tr><td><span class="ui">Exclude selected rows</span></td><td>Mette <code>include = no</code>.</td></tr>
+              <tr><td><span class="ui">Save pairing table</span></td><td>Scrive la tabella nel file indicato in <span class="ui">Pairing table</span> (o ne chiede uno nuovo).</td></tr>
+              <tr><td><span class="ui">3. Check and load data</span></td><td>Salva la tabella, controlla che tutti i file delle righe incluse esistano e legge i dati. Il riquadro dei messaggi riporta campioni letti, intervalli di lunghezza d'onda, quanti hanno bianco e assorbanza, ed eventuali avvisi.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Come viene proposta la bozza</h3>
+        <ul>
+          <li>Un file è considerato un <strong>bianco</strong> se il nome del campione o del file contiene <em>blank</em>, <em>bianc</em>, <em>milli-q</em>, <em>MQ</em> o <em>ultrapure</em>.</li>
+          <li><strong>Assorbanza</strong>: il file di assorbanza con lo stesso nome del campione (ignorando maiuscole, spazi, <code>_</code>, <code>-</code> e <code>.</code>), preferendo quello nella stessa cartella. Se ce ne sono zero o più di uno, la cella resta vuota.</li>
+          <li><strong>Bianco EEM</strong> e <strong>bianco di assorbanza</strong>: l'unico bianco nella stessa cartella. Se ce ne sono due, non sceglie.</li>
+          <li>Ogni scelta, o il motivo per cui non è stata fatta, è scritta nella colonna <code>pairing_notes</code>.</li>
+        </ul>
+        <div class="note warn">
+          <span class="label">Per l'Ombrone</span>
+          <p>Non usare la bozza: la tua <code>config/pairing.csv</code> è già curata a mano (esclusioni di FARMA 62, FARMA DICEMBRE, FARMA 1 e 2 comprese). La bozza serve per un dataset nuovo.</p>
+        </div>
+
+        <h3>Leggere e modificare la tabella</h3>
+        <ul>
+          <li>Colori delle righe: <span class="swatch" style="background:#fff4d6"></span> giallo = proposta automatica non ancora controllata; <span class="swatch" style="background:#f0efec"></span> grigio = esclusa (non verrà letta); bianco = inclusa.</li>
+          <li><strong>Doppio clic</strong> su una cella per modificarla. Nelle colonne dei file (<code>eem_file</code>, <code>eem_blank_file</code>, <code>abs_file</code>, <code>abs_blank_file</code>) si apre un elenco con i file del tipo giusto trovati dalla scansione.</li>
+          <li>La casella <span class="ui">Filter rows…</span> filtra su tutte le colonne (per esempio <code>Merse_2024-07</code>). Un clic sull'intestazione ordina per quella colonna.</li>
+          <li>Le colonne in più (fiume, campagna, sito, replicato, note…) diventano metadati dei campioni: le ritrovi negli indici e nei raggruppamenti.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="prose">
+        <h2 id="correzioni">2 · Correzioni</h2>
+        <p>A sinistra i parametri, a destra l'anteprima. L'ordine dei passaggi è fisso: bianco dell'assorbanza, effetto filtro interno, sottrazione del bianco, unità Raman, scattering, ritaglio.</p>
+      </div>
+      <figure>
+        <a href="img/2_corrections.png"><img src="img/2_corrections.png" alt="Scheda Corrections con i parametri e l'anteprima di un EEM" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Orcia, giugno, sito 6, replicato 2, dopo filtro interno, bianco e unità Raman. La scala dei colori è limitata al massimo della fluorescenza, quindi le bande di scattering appaiono sature (blu scuro).</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>I parametri</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Riquadro</th><th>Contenuto</th><th>Ombrone</th></tr></thead>
+            <tbody>
+              <tr><td><span class="ui">Inner filter</span></td><td>Cammino ottico delle due cuvette in cm. <strong>Obbligatori</strong>, senza valore predefinito: finché sono vuoti (in rosso) le correzioni non partono. Kothawala et al. 2013.</td><td class="num">1 e 1</td></tr>
+              <tr><td><span class="ui">Raman units</span></td><td>Eccitazione e intervallo di emissione dell'area Raman del bianco; sottrazione facoltativa di una linea di base. Lawaetz &amp; Stedmon 2009.</td><td class="num">Ex 350, Em 381–426, no</td></tr>
+              <tr><td><span class="ui">Scatter removal</span></td><td>Spostamento Raman dell'acqua e larghezza (sotto/sopra, in nm) delle quattro bande: Rayleigh e Raman di primo e secondo ordine. <span class="ui">Zeros below Rayleigh</span> mette a zero la zona con emissione minore di eccitazione meno l'offset (Thygesen et al. 2004). <span class="ui">Interpolate removed bands</span>: <code>no</code> lascia le bande come dati mancanti, come serve alla PARAFAC; <code>em</code>, <code>ex</code> o <code>both</code> le interpolano.</td><td class="num">3400 cm⁻¹; 10/10, 8/8, 12/12, 10/10; zeri a 10 nm; no</td></tr>
+              <tr><td><span class="ui">Crop</span></td><td>Limiti di eccitazione ed emissione da tenere. Vuoto = nessun limite.</td><td class="num">Ex ≥ 240</td></tr>
+              <tr><td><span class="ui">Samples without blank or absorbance</span></td><td><code>error</code> si ferma e li elenca; <code>drop</code> li toglie; <code>keep</code> li lascia <em>non corretti</em> (sconsigliato: mescoleresti campioni corretti e non).</td><td class="num">error</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <span class="label">Valori predefiniti</span>
+          <p>Per un progetto nuovo le bande di scattering partono da 10 nm, il valore predefinito di eemR e staRdom. È un punto di partenza generico: controllalo sui bianchi nell'anteprima prima di confermarlo.</p>
+        </div>
+
+        <h3>Applicare e controllare</h3>
+        <ul>
+          <li><span class="ui">Apply corrections</span> salva i parametri nel progetto ed esegue la catena. Sull'Ombrone richiede circa un secondo.</li>
+          <li><span class="ui">Sample</span> sceglie il campione, <span class="ui">Step</span> il passaggio: <span class="ui">Raw sample</span>, <span class="ui">Raw blank</span>, <span class="ui">After inner filter, blank, Raman units</span>, <span class="ui">Corrected (scatter removed, cropped)</span>.</li>
+          <li>Nei passaggi prima della rimozione dello scattering la scala dei colori è limitata al massimo della fluorescenza; il titolo lo segnala.</li>
+          <li>Sotto il grafico, un riepilogo: stato della correzione spettrale, fattore di filtro interno su tutte le celle (mediana e massimo), area Raman dei bianchi con il suo CV, griglia finale e percentuale di celle mancanti. Sull'Ombrone: fattore massimo 1,39, CV dell'area Raman 3,1 %, 13,6 % di celle mancanti.</li>
+          <li>Con il mouse sul grafico puoi zoomare e spostarti con la barra degli strumenti di matplotlib; l'icona del dischetto salva l'immagine.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="prose">
+        <h2 id="indici">3 · Indici</h2>
+        <p>FI (Cory &amp; McKnight 2005), HIX (Ohno 2002), BIX (Huguet et al. 2009) e i picchi di Coble (1996), calcolati sugli EEM in unità Raman, prima della rimozione dello scattering.</p>
+      </div>
+      <figure>
+        <a href="img/3_indices.png"><img src="img/3_indices.png" alt="Scheda Indices con la tabella e l'andamento di HIX per campagna e fiume" width="1500" height="950" loading="lazy"></a>
+        <figcaption>HIX per campagna, raggruppato per fiume: media ± deviazione standard tra siti e replicati, con i singoli campioni come punti chiari.</figcaption>
+      </figure>
+      <div class="prose">
+        <ul>
+          <li><span class="ui">Excitations off the grid</span>: come trattare le eccitazioni non misurate (254, 275 e 312 nm su una griglia a passi di 10 nm). <code>linear</code> interpola tra le due scansioni vicine; <code>nearest</code> usa la più vicina; <code>exact</code> rifiuta.</li>
+          <li><span class="ui">BIX denominator emission</span>: emissione al denominatore del BIX (430 nm in Huguet et al. 2009).</li>
+          <li><span class="ui">Compute indices</span> calcola la tabella; <span class="ui">Save table…</span> la salva in CSV.</li>
+          <li>Il grafico si regola con <span class="ui">Show</span> (quale indice), <span class="ui">along</span> (asse x, per esempio <code>campaign</code>) e <span class="ui">grouped by</span> (per esempio <code>river</code>). I gruppi possono essere al massimo 8, uno per colore.</li>
+        </ul>
+        <div class="note warn">
+          <span class="label">FI</span>
+          <p>Senza correzione spettrale dello strumento, il FI vale circa 2 ed è confrontabile solo con misure fatte sullo stesso fluorimetro.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="prose">
+        <h2 id="parafac">4 · PARAFAC</h2>
+        <p>A sinistra le impostazioni, a destra quattro viste dei risultati. Si lavora in due tempi: prima i modelli esplorativi per scegliere il numero di componenti, poi il modello finale.</p>
+
+        <h3>Impostazioni dei modelli esplorativi</h3>
+        <ul>
+          <li><span class="ui">Components</span> da … a …: l'intervallo di componenti da provare.</li>
+          <li><span class="ui">Random starts</span>: inizializzazioni casuali per modello; si tiene la migliore.</li>
+          <li><span class="ui">Sample scaling</span>: <code>norm</code> scala ogni campione alla norma unitaria prima del fit, così pochi campioni molto intensi non dominano (Murphy et al. 2013); i punteggi vengono poi riportati in unità Raman.</li>
+          <li><span class="ui">Convergence</span> e <span class="ui">Max iterations</span>: 1e-6 basta per esplorare; il modello finale usa le sue.</li>
+          <li><span class="ui">Split-half validation (S4C6T3)</span>: inizializzazioni per ciascuna metà, colonne usate per bilanciare le metà (per l'Ombrone <code>river, campaign</code>), soglia della congruenza di Tucker (0,95) e seme della divisione.</li>
+          <li><span class="ui">Samples left out of the model</span>: i campioni esclusi dal modello. Per l'Ombrone ci sono già i 6 dell'Orcia di maggio, siti 5 e 6. <span class="ui">Put back selected</span> li reinserisce.</li>
+        </ul>
+        <p><span class="ui">Run exploratory models</span> calcola ogni modello e la sua validazione split-half. Sull'Ombrone, 2–4 componenti con 3 inizializzazioni hanno richiesto circa 3,5 minuti; con le impostazioni del progetto (2–7 componenti, 10 inizializzazioni) servono decine di minuti.</p>
+
+        <h3>Vista «Number of components»</h3>
+      </div>
+      <figure>
+        <a href="img/4a_parafac_ranks.png"><img src="img/4a_parafac_ranks.png" alt="Tabella e grafici per scegliere il numero di componenti" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Una riga per numero di componenti, e sotto tre grafici separati: varianza spiegata, core consistency e congruenza minima dello split-half con la soglia di 0,95.</figcaption>
+      </figure>
+      <div class="prose">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Colonna</th><th>Significato</th></tr></thead>
+            <tbody>
+              <tr><td><code>explained_pct</code></td><td>Varianza spiegata (%) sui dati scalati.</td></tr>
+              <tr><td><code>core_consistency_pct</code></td><td>CORCONDIA (Bro &amp; Kiers 2003): vicina a 100 per un modello adeguato, crolla quando ci sono troppe componenti.</td></tr>
+              <tr><td><code>sse_normalized</code></td><td>Somma dei quadrati dei residui.</td></tr>
+              <tr><td><code>n_iter</code>, <code>converged</code></td><td>Iterazioni del fit migliore e se ha raggiunto la tolleranza.</td></tr>
+              <tr><td><code>starts_at_best</code></td><td>Quante inizializzazioni sono arrivate allo stesso minimo: se sono poche, la soluzione è instabile.</td></tr>
+              <tr><td><code>split_half_min_tcc</code>, <code>split_half_validated</code></td><td>La congruenza minima tra le metà e se supera la soglia.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Un buon candidato è validato dallo split-half, ha una core consistency alta, inizializzazioni che concordano e componenti con forme spettrali sensate.</p>
+
+        <h3>Vista «Components by model»</h3>
+      </div>
+      <figure>
+        <a href="img/4d_parafac_by_model.png"><img src="img/4d_parafac_by_model.png" alt="Componenti del modello a 4 componenti con i modelli split-half" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Le componenti del modello scelto nel menu <span class="ui">Model</span>, qui quello a 4 componenti senza i 6 campioni dell'Orcia, che avevamo scartato. Sotto ogni EEM, i loading di eccitazione (tratteggio) e di emissione (linea piena); le linee grigie sono i sei modelli split-half. In C2 e C3 le linee grigie si separano e C3 ha due massimi di eccitazione poco plausibili: sono i segni di un modello con troppe componenti.</figcaption>
+      </figure>
+
+      <div class="prose">
+        <h3>Vista «Outliers»</h3>
+      </div>
+      <figure>
+        <a href="img/4b_parafac_outliers.png"><img src="img/4b_parafac_outliers.png" alt="Leverage contro residui e tabella dei campioni ordinati per leverage" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Leverage contro residui per il modello scelto, colorato per fiume. La tabella a destra ordina i campioni per leverage.</figcaption>
+      </figure>
+      <div class="prose">
+        <ul>
+          <li>Un campione con <strong>leverage alto</strong> condiziona da solo il modello; uno con <strong>residuo alto</strong> è spiegato male.</li>
+          <li>Per escluderne uno: selezionalo nella tabella e premi <span class="ui">Leave selected samples out</span>. Finisce nell'elenco a sinistra e i modelli vanno ricalcolati.</li>
+          <li>L'elenco degli esclusi si salva nel progetto, il motivo no: annotalo (per l'Ombrone è nel commento di <code>processing.toml</code>).</li>
+        </ul>
+
+        <h3>Il modello finale</h3>
+        <p>Nel riquadro <span class="ui">Final model</span> imposta numero di componenti, inizializzazioni (20), tolleranza (1e-8) e iterazioni massime, poi <span class="ui">Fit final model</span>. Il modello viene calcolato e validato di nuovo con lo split-half.</p>
+      </div>
+      <figure>
+        <a href="img/4c_parafac_final.png"><img src="img/4c_parafac_final.png" alt="Il modello finale a 3 componenti con il riepilogo" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Il modello finale dell'Ombrone ricalcolato nell'app. La riga in alto riassume varianza spiegata, core consistency, inizializzazioni al minimo e verdetto dello split-half. Per fare in fretta, questa schermata è stata ottenuta con 3 inizializzazioni invece di 20.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="prose">
+        <h2 id="export">5 · Esportazione</h2>
+      </div>
+      <figure>
+        <a href="img/5_export.png"><img src="img/5_export.png" alt="Scheda Export con le caselle dei file e i metadati OpenFluor" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Cosa scrivere a sinistra, metadati OpenFluor a destra; sotto, l'elenco dei file scritti.</figcaption>
+      </figure>
+      <div class="prose">
+        <ul>
+          <li>Scegli cosa scrivere con le caselle; un risultato non ancora calcolato viene saltato e segnalato.</li>
+          <li>Compila i metadati OpenFluor che conosci (autore, email, DOI, riferimento, descrizione). I campi vuoti diventano <code>?</code>; i campi ricavabili dal modello (unità, numero di campioni, vincoli, data, software) sono compilati automaticamente. I metadati si salvano nel progetto.</li>
+          <li><span class="ui">Export to the output folder</span> scrive i file; <span class="ui">Open output folder</span> apre la cartella.</li>
+        </ul>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>File</th><th>Contenuto</th></tr></thead>
+            <tbody>
+              <tr><td><code>settings.toml</code></td><td>Tutte le impostazioni usate (sempre scritto).</td></tr>
+              <tr><td><code>processing_record.json</code></td><td>Versioni del software, ogni passaggio di elaborazione con i suoi parametri, elenco dei campioni, statistiche del modello (sempre scritto).</td></tr>
+              <tr><td><code>corrected_eems.nc</code></td><td>EEM corretti, in netCDF, con la cronologia dei passaggi.</td></tr>
+              <tr><td><code>indices.csv</code></td><td>Indici e picchi per campione, con i metadati.</td></tr>
+              <tr><td><code>parafac_exploration.csv</code></td><td>La tabella «Number of components».</td></tr>
+              <tr><td><code>parafac_3comp_fmax.csv</code></td><td>Fmax di ogni componente per campione, in unità Raman.</td></tr>
+              <tr><td><code>parafac_3comp_ex_loadings.csv</code><br><code>parafac_3comp_em_loadings.csv</code></td><td>Loading di eccitazione ed emissione.</td></tr>
+              <tr><td><code>parafac_3comp_openfluor.txt</code></td><td>File per OpenFluor. Controllalo sul modello di caricamento attuale prima di inviarlo.</td></tr>
+              <tr><td><code>parafac_3comp_model.nc</code></td><td>Il modello completo.</td></tr>
+              <tr><td><code>figures/</code></td><td>Diagnostica del numero di componenti, componenti e leverage, in PDF e PNG.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Il <code>3</code> nei nomi è il numero di componenti del modello finale.</p>
+      </div>
+    </section>
+
+    <div class="prose">
+      <h2 id="menu">Menu e salvataggio</h2>
+      <ul>
+        <li><span class="ui">File</span> → <span class="ui">New project</span>, <span class="ui">Open project…</span>, <span class="ui">Save project</span> (Ctrl+S), <span class="ui">Save project as…</span>, <span class="ui">Quit</span>.</li>
+        <li>Un asterisco nel titolo della finestra (<code>eemkit - project.toml *</code>) indica modifiche non salvate; chiudendo, l'app chiede se salvarle.</li>
+        <li>Nel progetto i percorsi sotto la cartella del file vengono salvati come relativi, così il progetto si può spostare insieme ai suoi file.</li>
+        <li>Aprendo un progetto, la tabella degli abbinamenti indicata viene caricata da sola; i dati vanno riletti con <span class="ui">3. Check and load data</span>.</li>
+        <li><span class="ui">Help</span> → <span class="ui">About eemkit</span> mostra la versione, i metodi e le versioni delle librerie.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <h2 id="script">Rifare tutto da script</h2>
+      <p>Il file di progetto basta per ripetere l'analisi senza l'app:</p>
+      <pre><code>from eemkit import pipeline
+
+s = pipeline.load_settings("progetto.toml")
+raw = pipeline.load(s, base="cartella/del/progetto")
+after_raman = pipeline.correct_until_raman(raw, s)
+corrected = pipeline.finish_corrections(after_raman, s)
+indices = pipeline.compute_indices(after_raman, s)
+ds = pipeline.parafac_input(corrected, s)
+exploration = pipeline.explore(ds, s)
+model, split = pipeline.fit_final(ds, s)
+pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
+                        exploration=exploration, model=model, split=split)</code></pre>
+      <p>Un parametro senza valore predefinito, come il cammino ottico, ferma l'esecuzione con un messaggio che lo nomina.</p>
+    </div>
+
+    <div class="prose">
+      <h2 id="problemi">Problemi comuni</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Messaggio o situazione</th><th>Cosa fare</th></tr></thead>
+          <tbody>
+            <tr><td>«Enter both cuvette path lengths»</td><td>Inserisci i due cammini ottici nella scheda 2 (per l'Ombrone 1 cm).</td></tr>
+            <tr><td>«Load the data first» / «Apply the corrections first»</td><td>Manca un passo precedente: segui l'ordine delle schede.</td></tr>
+            <tr><td>Errore della tabella degli abbinamenti</td><td>L'elenco indica riga e problema (file mancante, <code>sample_id</code> doppio, <code>include</code> non valido). Correggi e ricarica.</td></tr>
+            <tr><td>«… sample(s) have no blank / absorbance»</td><td>Completa la tabella, oppure scegli <code>drop</code> in <span class="ui">Samples without blank or absorbance</span>.</td></tr>
+            <tr><td><span class="ui">⚠ N warnings</span> dopo la PARAFAC</td><td>Leggi gli avvisi. «did not converge»: aumenta <span class="ui">Max iterations</span> e ricalcola.</td></tr>
+            <tr><td>I risultati di una scheda sono spariti</td><td>Hai cambiato un parametro da cui dipendevano: ricalcolali.</td></tr>
+            <tr><td>Il grafico degli indici non compare</td><td>La colonna scelta in <span class="ui">grouped by</span> ha più di 8 gruppi: scegline un'altra.</td></tr>
+            <tr><td>«The data folder is read only»</td><td>Salva progetto, tabella o risultati fuori dalla cartella dei dati.</td></tr>
+            <tr><td>L'eseguibile si chiude all'avvio</td><td>Leggi <code>%TEMP%\eemkit-crash.log</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h2 id="limiti">Limiti attuali</h2>
+      <ul>
+        <li>Legge solo i CSV «ASCII with log» del Cary Eclipse (EEM 3-D) e del Cary 60 (assorbanza).</li>
+        <li>La correzione spettrale dello strumento è disponibile nella libreria (<code>eemkit.corrections.apply_spectral_correction</code>) ma non ancora nell'app.</li>
+        <li>Annullare un calcolo ha effetto solo alla fine del modello in corso.</li>
+        <li>L'interfaccia è solo in inglese.</li>
+        <li>L'app non salva i risultati nel progetto: riaprendolo vanno ricalcolati, oppure si usano i file esportati.</li>
+      </ul>
+    </div>
+  </main>
+</div>
