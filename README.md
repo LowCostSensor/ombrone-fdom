@@ -18,7 +18,7 @@ also serves as its validation against the R package staRdom.
 
 | path | content |
 |---|---|
-| [`data/`](data/README.md) | 473 raw CSV files from the Cary Eclipse and Cary 60, unchanged (CC BY 4.0) |
+| [`data/`](data/README.md) | 473 raw CSV files from the Cary Eclipse and Cary 60, unchanged except for anonymised operator names (CC BY 4.0) |
 | `config/pairing.csv` | which EEM, blank and absorbance file belong to each sample, checked by hand |
 | `config/processing.toml` | every processing parameter, each with its reason and source |
 | `config/ombrone_project.toml` | the same settings as an eemkit project, for the desktop application |

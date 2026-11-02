@@ -8,9 +8,13 @@ Polvani et al. (2026), *Environmental Pollution* 396, 127858,
 
 ## Files
 
-`raw/` holds the 473 CSV files exactly as exported by the instruments, with
-the original folder structure and file names (SHA-256 identical to the
-originals). Folder names are those of the measurement sessions.
+`raw/` holds the 473 CSV files as exported by the instruments, with the
+original folder structure and file names, with one change: the names of the
+people who made the measurements are replaced by `operator_1` to
+`operator_4`, both in the folder names and in the paths recorded in the
+instrument logs. Apart from these replacements every file is byte-identical
+to the instrument export (checked by SHA-256). The other folder names are
+those of the measurement sessions.
 
 | folder | content |
 |---|---|
