@@ -17,5 +17,6 @@ dependencies:
   - git
   - pip
   - pip:
-      # for development next to a local clone, use instead: -e ../eemkit[dev]
-      - "eemkit[gui] @ git+https://github.com/LowCostSensor/eemkit@v0.1.0"
+      # eemkit from GitHub (not yet on PyPI); to pin a release later use
+      # .../archive/refs/tags/v0.1.0.zip. Next to a local clone: -e ../eemkit[dev]
+      - "eemkit[gui] @ https://github.com/LowCostSensor/eemkit/archive/refs/heads/main.zip"
