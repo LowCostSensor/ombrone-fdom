@@ -11,7 +11,7 @@ Outputs (in --out):
     inventory_report.md human-readable summary
 
 Usage:
-    python scripts/inventory.py --data-root "<...>/Progetto PARAFAC" --out inventory
+    python scripts/inventory.py --data-root data/raw --out inventory
 """
 
 from __future__ import annotations
@@ -673,7 +673,7 @@ def write_report(path: Path, data_root: Path, eem: pd.DataFrame, ab: pd.DataFram
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data-root", required=True, type=Path)
+    ap.add_argument("--data-root", default=Path("data/raw"), type=Path)
     ap.add_argument("--out", default=Path("inventory"), type=Path)
     args = ap.parse_args()
 

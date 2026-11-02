@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use these data or this analysis, please cite the article below and this repository."
+title: "ombrone-fdom: raw fluorescence and absorbance data and PARAFAC analysis of the Ombrone basin rivers, 2024"
+type: dataset
+authors:
+  - family-names: Cirrone
+    given-names: Riccardo Gaetano
+    affiliation: University of Siena
+license: CC-BY-4.0
+repository-code: "https://github.com/LowCostSensor/ombrone-fdom"
+keywords:
+  - fluorescence
+  - dissolved organic matter
+  - excitation-emission matrix
+  - PARAFAC
+  - Ombrone
+  - rivers
+preferred-citation:
+  type: article
+  title: "Disentangling spatial and seasonal controls on heavy metal pollution in Mediterranean rivers through fluorescence DOM"
+  authors:
+    - family-names: Polvani
+      given-names: Alessio
+    - family-names: Nardin
+      given-names: Raffaello
+    - family-names: Liu
+      given-names: Xinyu
+    - family-names: Di Grazia
+      given-names: Francesco
+    - family-names: Boldrini
+      given-names: Amedeo
+    - family-names: Cirrone
+      given-names: Riccardo Gaetano
+    - family-names: Galgani
+      given-names: Luisa
+    - family-names: Tamasi
+      given-names: Gabriella
+    - family-names: Loiselle
+      given-names: Steven A.
+  journal: "Environmental Pollution"
+  volume: 396
+  start: 127858
+  year: 2026
+  doi: "10.1016/j.envpol.2026.127858"

@@ -10,6 +10,6 @@ dist/
 inventory/
 outputs/
 
-# Raw instrument data never goes into the repository
+# Raw data: only the CSV exports are published (data/raw); binary instrument files are not
 *.FDSW
 *.BSW

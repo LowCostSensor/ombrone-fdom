@@ -141,7 +141,7 @@ td:first-child { white-space: nowrap; }
     <div class="prose">
       <h1 id="cos-e">Guida all'app eemkit</h1>
       <p class="lede">Come usare l'applicazione desktop di eemkit per passare dai file CSV del Cary Eclipse e del Cary 60 a EEM corretti, indici di fluorescenza e un modello PARAFAC validato.</p>
-      <p class="meta">eemkit 0.1.0.dev0 · app in PySide6 · schermate fatte sui dati dell'Ombrone 2024</p>
+      <p class="meta">eemkit 0.1.0 · app in PySide6 · schermate fatte sui dati dell'Ombrone 2024 (Polvani et al. 2026, <a href="https://doi.org/10.1016/j.envpol.2026.127858">doi:10.1016/j.envpol.2026.127858</a>)</p>
 
       <p>L'app è un'interfaccia sopra la libreria eemkit: non fa calcoli suoi. Ogni pulsante chiama le stesse funzioni usate dagli script dell'Ombrone (<code>eemkit.pipeline</code>), e sui dati reali produce gli stessi risultati: il modello a 3 componenti ottenuto nell'app ha varianza spiegata 99,017 %, core consistency 85,5 % e split-half 0,9915, come nella Fase 4.</p>
       <p>Le etichette dell'app sono in inglese. In questa guida le trovi scritte così: <span class="ui">Apply corrections</span>, cioè esattamente come appaiono sullo schermo.</p>
@@ -156,7 +156,7 @@ eemkit-gui</code></pre>
       <pre><code>python -m eemkit.gui percorso\del\progetto.toml</code></pre>
 
       <h3>Il progetto dell'Ombrone, già pronto</h3>
-      <p>Ho preparato <span class="path">ombrone-fdom/outputs/ombrone_project.toml</span>: contiene i parametri confermati in <code>config/processing.toml</code>, il percorso della tua cartella dei dati, la tabella <code>config/pairing.csv</code> e una cartella di uscita <code>outputs/gui</code>. Aprilo con <span class="ui">File</span> → <span class="ui">Open project…</span> e passa subito al punto 3 del <a href="#flusso">flusso</a>.</p>
+      <p>Ho preparato <span class="path">ombrone-fdom/config/ombrone_project.toml</span>: contiene i parametri confermati in <code>config/processing.toml</code>, la cartella dei dati <code>data/raw</code> (la copia dei CSV nel repository), la tabella <code>config/pairing.csv</code> e una cartella di uscita <code>outputs/gui</code>, tutti relativi al file di progetto. Aprilo con <span class="ui">File</span> → <span class="ui">Open project…</span> e passa subito al punto 3 del <a href="#flusso">flusso</a>.</p>
 
       <h3>Eseguibile Windows (senza Python)</h3>
       <p>Ho costruito una versione autonoma in <span class="path">%TEMP%\ekb\dist\eemkit\eemkit.exe</span> (circa 160 MB). Sta in una cartella temporanea che Windows può svuotare: per tenerla, copia l'intera cartella <code>eemkit</code>. Per ricostruirla, da un ambiente <em>attivato</em>:</p>
@@ -205,7 +205,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
       <div class="prose">
         <h3>I tre percorsi</h3>
         <ul>
-          <li><span class="ui">Data folder</span>: la cartella con i CSV degli strumenti (per te, <span class="path">Progetto PARAFAC</span> su OneDrive).</li>
+          <li><span class="ui">Data folder</span>: la cartella con i CSV degli strumenti (per l'Ombrone, <span class="path">data/raw</span> nel repository ombrone-fdom).</li>
           <li><span class="ui">Pairing table</span>: il file CSV con gli abbinamenti. <span class="ui">Open…</span> ne apre uno esistente.</li>
           <li><span class="ui">Output folder</span>: dove la scheda 5 scrive i risultati. Non può stare dentro la cartella dei dati.</li>
         </ul>

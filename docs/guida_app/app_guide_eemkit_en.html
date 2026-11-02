@@ -141,7 +141,7 @@ td:first-child { white-space: nowrap; }
     <div class="prose">
       <h1 id="what">eemkit app guide</h1>
       <p class="lede">How to use the eemkit desktop application to go from Cary Eclipse and Cary 60 CSV files to corrected EEMs, fluorescence indices and a validated PARAFAC model.</p>
-      <p class="meta">eemkit 0.1.0.dev0 · PySide6 application · screenshots taken on the Ombrone 2024 data</p>
+      <p class="meta">eemkit 0.1.0 · PySide6 application · screenshots taken on the Ombrone 2024 data (Polvani et al. 2026, <a href="https://doi.org/10.1016/j.envpol.2026.127858">doi:10.1016/j.envpol.2026.127858</a>)</p>
 
       <p>The app is a front end to the eemkit library and does no calculations of its own. Every button calls the same functions as the Ombrone scripts (<code>eemkit.pipeline</code>), and on the real data it gives the same results: the 3-component model fitted in the app has 99.017 % explained variance, 85.5 % core consistency and a split-half congruence of 0.9915, as in the scripted analysis.</p>
       <p>Labels in this guide are written as they appear on screen: <span class="ui">Apply corrections</span>.</p>
@@ -156,10 +156,10 @@ eemkit-gui</code></pre>
       <pre><code>python -m eemkit.gui path\to\project.toml</code></pre>
 
       <h3>The Ombrone project, ready to use</h3>
-      <p><span class="path">ombrone-fdom/outputs/ombrone_project.toml</span> holds the confirmed parameters of <code>config/processing.toml</code>, the path of the data folder, the pairing table <code>config/pairing.csv</code> and an output folder <code>outputs/gui</code>. Open it with <span class="ui">File</span> → <span class="ui">Open project…</span> and go straight to step 3 of the <a href="#workflow">workflow</a>.</p>
+      <p><span class="path">ombrone-fdom/config/ombrone_project.toml</span> holds the parameters of <code>config/processing.toml</code>, the data folder <code>data/raw</code>, the pairing table <code>config/pairing.csv</code> and an output folder <code>outputs/gui</code>, all relative to the project file. Open it with <span class="ui">File</span> → <span class="ui">Open project…</span> and go straight to step 3 of the <a href="#workflow">workflow</a>.</p>
 
       <h3>Windows executable (no Python needed)</h3>
-      <p>A stand-alone build is in <span class="path">%TEMP%\ekb\dist\eemkit\eemkit.exe</span> (about 160 MB). It sits in a temporary folder that Windows may empty: to keep it, copy the whole <code>eemkit</code> folder. To rebuild it, from an <em>activated</em> environment:</p>
+      <p>Each <a href="https://github.com/LowCostSensor/eemkit/releases">eemkit release</a> has a zipped stand-alone build (about 160 MB unpacked): unzip it anywhere and run <code>eemkit.exe</code>. To build it yourself, from an <em>activated</em> environment:</p>
       <pre><code>cd eemkit\packaging
 pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
       <div class="note">

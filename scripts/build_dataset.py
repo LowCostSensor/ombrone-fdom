@@ -1,7 +1,7 @@
 """Read the Ombrone dataset through eemkit using the curated pairing table.
 
 Usage:
-    python scripts/build_dataset.py --data-root "<...>/Progetto PARAFAC" \
+    python scripts/build_dataset.py --data-root data/raw \
         --pairing config/pairing.csv --out outputs/ombrone_raw.nc
 """
 
@@ -20,7 +20,7 @@ import eemkit
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data-root", required=True, type=Path)
+    ap.add_argument("--data-root", default=Path("data/raw"), type=Path)
     ap.add_argument("--pairing", default=Path("config/pairing.csv"), type=Path)
     ap.add_argument("--out", default=Path("outputs/ombrone_raw.nc"), type=Path)
     args = ap.parse_args()

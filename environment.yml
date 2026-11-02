@@ -17,4 +17,5 @@ dependencies:
   - git
   - pip
   - pip:
-      - -e ../eemkit[dev]
+      # for development next to a local clone, use instead: -e ../eemkit[dev]
+      - "eemkit[gui] @ git+https://github.com/LowCostSensor/eemkit@v0.1.0"

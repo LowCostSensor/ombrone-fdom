@@ -1,0 +1,75 @@
+# eemkit project for the Ombrone 2024 dataset (open in eemkit-gui, or use with
+# eemkit.pipeline). Paths are relative to this file. The parameters are those of
+# config/processing.toml, used for the analysis in this repository.
+
+[project]
+data_root = "../data/raw"
+pairing = "pairing.csv"
+output_dir = "../outputs/gui"
+
+[spectral]
+ex_factors = ""
+em_factors = ""
+convention = "multiply"
+
+[inner_filter]
+absorbance_path_length_cm = 1.0
+fluorescence_path_length_cm = 1.0
+
+[raman]
+ex = 350
+em_range = [381, 426]
+baseline = false
+
+[scatter]
+raman_shift_cm1 = 3400
+rayleigh1 = [10, 10]
+raman1 = [8, 8]
+rayleigh2 = [12, 12]
+raman2 = [10, 10]
+zero_below_rayleigh = 10
+interpolate = false
+
+[crop]
+ex_min = 240
+# ex_max = (not set)
+# em_min = (not set)
+# em_max = (not set)
+
+[indices]
+ex_method = "linear"
+bix_em_den = 430
+stage = "after_raman"
+
+[parafac]
+ranks = [2, 3, 4, 5, 6, 7]
+n_init = 10
+normalization = "norm"
+tol = 1e-06
+max_iter = 5000
+random_state = 0
+exclude = ["Orcia_2024-05_S5_R1", "Orcia_2024-05_S5_R2", "Orcia_2024-05_S5_R3", "Orcia_2024-05_S6_R1", "Orcia_2024-05_S6_R2", "Orcia_2024-05_S6_R3"]
+
+[parafac.split_half]
+n_init = 5
+stratify = ["river", "campaign"]
+random_state = 0
+threshold = 0.95
+
+[parafac.final]
+rank = 3
+tol = 1e-08
+max_iter = 20000
+n_init = 20
+
+[parafac.final.openfluor]
+fluorometer = "Agilent Cary Eclipse"
+sources = "river water, Ombrone basin (Tuscany, Italy), 2024"
+validation = "split-half S4C6T3, Tucker congruence >= 0.95"
+preprocess = "absorbance inner-filter, blank subtraction, Raman units, scatter removed (missing), ex >= 240 nm, no spectral correction"
+
+[missing]
+policy = "error"
+
+[display]
+eem_colours = "eclipse"

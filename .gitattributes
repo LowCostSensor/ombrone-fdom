@@ -1,0 +1,2 @@
+# Raw instrument files are stored byte for byte (CRLF line ends, as exported)
+data/raw/** -text
