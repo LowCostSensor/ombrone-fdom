@@ -250,11 +250,11 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
     <section>
       <div class="prose">
         <h2 id="correzioni">2 · Correzioni</h2>
-        <p>A sinistra i parametri, a destra l'anteprima. L'ordine dei passaggi è fisso: bianco dell'assorbanza, effetto filtro interno, sottrazione del bianco, unità Raman, scattering, ritaglio.</p>
+        <p>A sinistra i parametri, a destra l'anteprima. L'ordine dei passaggi è fisso: correzione spettrale dello strumento (facoltativa), bianco dell'assorbanza, effetto filtro interno, sottrazione del bianco, unità Raman, scattering, ritaglio.</p>
       </div>
       <figure>
-        <a href="img/2_corrections.png"><img src="img/2_corrections.png" alt="Scheda Corrections con i parametri e l'anteprima di un EEM" width="1500" height="950" loading="lazy"></a>
-        <figcaption>Orcia, giugno, sito 6, replicato 2, dopo filtro interno, bianco e unità Raman. La scala dei colori è limitata al massimo della fluorescenza, quindi le bande di scattering appaiono sature (blu scuro).</figcaption>
+        <a href="img/2_corrections.png"><img src="img/2_corrections.png" alt="Scheda Corrections con i parametri e l'anteprima di un EEM nei colori del Cary Eclipse" width="1500" height="950" loading="lazy"></a>
+        <figcaption>Orcia, giugno, sito 6, replicato 2, dopo filtro interno, bianco e unità Raman, con i colori del Cary Eclipse (viola = basso, rosso = alto). La scala è limitata al massimo della fluorescenza, quindi le bande di scattering appaiono sature (rosse).</figcaption>
       </figure>
       <div class="prose">
         <h3>I parametri</h3>
@@ -262,6 +262,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
           <table>
             <thead><tr><th>Riquadro</th><th>Contenuto</th><th>Ombrone</th></tr></thead>
             <tbody>
+              <tr><td><span class="ui">Instrument spectral correction</span></td><td>File dei fattori di correzione di eccitazione ed emissione dello strumento (facoltativo, vedi <a href="#spettrale">sotto</a>). Vuoto = non applicata.</td><td class="num">non applicata</td></tr>
               <tr><td><span class="ui">Inner filter</span></td><td>Cammino ottico delle due cuvette in cm. <strong>Obbligatori</strong>, senza valore predefinito: finché sono vuoti (in rosso) le correzioni non partono. Kothawala et al. 2013.</td><td class="num">1 e 1</td></tr>
               <tr><td><span class="ui">Raman units</span></td><td>Eccitazione e intervallo di emissione dell'area Raman del bianco; sottrazione facoltativa di una linea di base. Lawaetz &amp; Stedmon 2009.</td><td class="num">Ex 350, Em 381–426, no</td></tr>
               <tr><td><span class="ui">Scatter removal</span></td><td>Spostamento Raman dell'acqua e larghezza (sotto/sopra, in nm) delle quattro bande: Rayleigh e Raman di primo e secondo ordine. <span class="ui">Zeros below Rayleigh</span> mette a zero la zona con emissione minore di eccitazione meno l'offset (Thygesen et al. 2004). <span class="ui">Interpolate removed bands</span>: <code>no</code> lascia le bande come dati mancanti, come serve alla PARAFAC; <code>em</code>, <code>ex</code> o <code>both</code> le interpolano.</td><td class="num">3400 cm⁻¹; 10/10, 8/8, 12/12, 10/10; zeri a 10 nm; no</td></tr>
@@ -275,10 +276,25 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
           <p>Per un progetto nuovo le bande di scattering partono da 10 nm, il valore predefinito di eemR e staRdom. È un punto di partenza generico: controllalo sui bianchi nell'anteprima prima di confermarlo.</p>
         </div>
 
+        <h3 id="spettrale">Correzione spettrale dello strumento</h3>
+        <p>Lampada, monocromatori e rivelatore non rispondono allo stesso modo a tutte le lunghezze d'onda. Se il Cary Eclipse misura con <em>Corrected spectra</em> OFF, come nei dati dell'Ombrone, gli EEM contengono questa risposta: le unità Raman restano coerenti tra i tuoi campioni, ma indici come il FI non sono confrontabili con quelli di altri strumenti (Cory et al. 2010).</p>
+        <ul>
+          <li><span class="ui">Excitation file</span> e <span class="ui">Emission file</span>: <span class="ui">Choose…</span> sceglie il file, <span class="ui">Clear</span> lo toglie. Servono tutti e due, oppure nessuno.</li>
+          <li>Formato: due colonne, lunghezza d'onda (nm) e fattore; righe di intestazione e separatori <code>,</code> <code>;</code> tab o spazio vanno bene. I fattori devono coprire tutto l'intervallo di eccitazione ed emissione degli EEM ed essere positivi.</li>
+          <li>Appena scelto, il file viene letto e sotto compaiono numero di valori, intervallo e minimo/massimo dei fattori: così vedi subito se è il file giusto.</li>
+          <li><span class="ui">Files contain</span>: <span class="ui">correction factors (multiply)</span> se il file contiene fattori di correzione (gli EEM vengono moltiplicati); <span class="ui">instrument response (divide)</span> se contiene la risposta dello strumento, per esempio uno spettro di riferimento (gli EEM vengono divisi).</li>
+          <li>La correzione si applica per prima, ai campioni e ai bianchi. Nel menu <span class="ui">Step</span> dell'anteprima, <span class="ui">Spectral correction factors</span> mostra i fattori effettivamente applicati; il riepilogo sotto il grafico riporta lo stato della correzione.</li>
+          <li>I dati registrati con <em>Corrected spectra</em> ON vengono rifiutati, così la correzione non si applica mai due volte.</li>
+        </ul>
+        <div class="note warn">
+          <span class="label">Da dove vengono i fattori</span>
+          <p>eemkit non contiene fattori di correzione: sono propri di ogni strumento e vanno misurati, per esempio con standard di riferimento certificati, oppure forniti dal servizio tecnico dello strumento. Per l'Ombrone non ne abbiamo, quindi la correzione resta vuota.</p>
+        </div>
+
         <h3>Applicare e controllare</h3>
         <ul>
           <li><span class="ui">Apply corrections</span> salva i parametri nel progetto ed esegue la catena. Sull'Ombrone richiede circa un secondo.</li>
-          <li><span class="ui">Sample</span> sceglie il campione, <span class="ui">Step</span> il passaggio: <span class="ui">Raw sample</span>, <span class="ui">Raw blank</span>, <span class="ui">After inner filter, blank, Raman units</span>, <span class="ui">Corrected (scatter removed, cropped)</span>.</li>
+          <li><span class="ui">Sample</span> sceglie il campione, <span class="ui">Step</span> il passaggio: <span class="ui">Raw sample</span>, <span class="ui">Raw blank</span>, <span class="ui">After inner filter, blank, Raman units</span>, <span class="ui">Corrected (scatter removed, cropped)</span>, <span class="ui">Spectral correction factors</span>.</li>
           <li>Nei passaggi prima della rimozione dello scattering la scala dei colori è limitata al massimo della fluorescenza; il titolo lo segnala.</li>
           <li>Sotto il grafico, un riepilogo: stato della correzione spettrale, fattore di filtro interno su tutte le celle (mediana e massimo), area Raman dei bianchi con il suo CV, griglia finale e percentuale di celle mancanti. Sull'Ombrone: fattore massimo 1,39, CV dell'area Raman 3,1 %, 13,6 % di celle mancanti.</li>
           <li>Con il mouse sul grafico puoi zoomare e spostarti con la barra degli strumenti di matplotlib; l'icona del dischetto salva l'immagine.</li>
@@ -373,7 +389,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
       </div>
       <figure>
         <a href="img/4c_parafac_final.png"><img src="img/4c_parafac_final.png" alt="Il modello finale a 3 componenti con il riepilogo" width="1500" height="950" loading="lazy"></a>
-        <figcaption>Il modello finale dell'Ombrone ricalcolato nell'app. La riga in alto riassume varianza spiegata, core consistency, inizializzazioni al minimo e verdetto dello split-half. Per fare in fretta, questa schermata è stata ottenuta con 3 inizializzazioni invece di 20.</figcaption>
+        <figcaption>Il modello finale dell'Ombrone (20 inizializzazioni, tutte allo stesso minimo). La riga in alto riassume varianza spiegata, core consistency, inizializzazioni al minimo e verdetto dello split-half.</figcaption>
       </figure>
     </section>
 
@@ -404,7 +420,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
               <tr><td><code>parafac_3comp_ex_loadings.csv</code><br><code>parafac_3comp_em_loadings.csv</code></td><td>Loading di eccitazione ed emissione.</td></tr>
               <tr><td><code>parafac_3comp_openfluor.txt</code></td><td>File per OpenFluor. Controllalo sul modello di caricamento attuale prima di inviarlo.</td></tr>
               <tr><td><code>parafac_3comp_model.nc</code></td><td>Il modello completo.</td></tr>
-              <tr><td><code>figures/</code></td><td>Diagnostica del numero di componenti, componenti e leverage, in PDF e PNG.</td></tr>
+              <tr><td><code>figures/</code></td><td>Diagnostica del numero di componenti, componenti e leverage, in PDF e PNG, nei colori scelti in <span class="ui">View</span> → <span class="ui">EEM colours</span>.</td></tr>
             </tbody>
           </table>
         </div>
@@ -419,8 +435,17 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <li>Un asterisco nel titolo della finestra (<code>eemkit - project.toml *</code>) indica modifiche non salvate; chiudendo, l'app chiede se salvarle.</li>
         <li>Nel progetto i percorsi sotto la cartella del file vengono salvati come relativi, così il progetto si può spostare insieme ai suoi file.</li>
         <li>Aprendo un progetto, la tabella degli abbinamenti indicata viene caricata da sola; i dati vanno riletti con <span class="ui">3. Check and load data</span>.</li>
+        <li><span class="ui">View</span> → <span class="ui">EEM colours</span> sceglie i colori degli EEM (vedi sotto).</li>
         <li><span class="ui">Help</span> → <span class="ui">About eemkit</span> mostra la versione, i metodi e le versioni delle librerie.</li>
       </ul>
+
+      <h3 id="colori">Colori degli EEM</h3>
+      <p>Tutti i grafici degli EEM (anteprima delle correzioni, componenti PARAFAC, figure esportate) usano la stessa scala, scelta in <span class="ui">View</span> → <span class="ui">EEM colours</span>:</p>
+      <ul>
+        <li><span class="ui">Cary Eclipse (violet, blue, green, yellow, red)</span>, quella predefinita: <span class="swatch" style="background:#4b0f8c"></span> viola per i valori bassi, poi <span class="swatch" style="background:#2a3bd6"></span> blu, <span class="swatch" style="background:#22b14c"></span> verde, <span class="swatch" style="background:#f5e31a"></span> giallo e <span class="swatch" style="background:#d7191c"></span> rosso per i valori alti, come nei grafici del software dello strumento.</li>
+        <li><span class="ui">Single-hue blue (perceptually ordered, for print)</span>: da bianco a blu scuro, la scala delle figure della Fase 6.</li>
+      </ul>
+      <p>La scelta si salva nel progetto. La scala arcobaleno è comoda per confrontare con lo strumento, ma i salti di colore (per esempio tra verde e giallo) sembrano confini che nei dati non ci sono; per le figure da pubblicare conviene la scala blu (Crameri et al. 2020, <em>Nature Communications</em> 11, 5444).</p>
     </div>
 
     <div class="prose">
@@ -430,7 +455,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
 
 s = pipeline.load_settings("progetto.toml")
 raw = pipeline.load(s, base="cartella/del/progetto")
-after_raman = pipeline.correct_until_raman(raw, s)
+after_raman = pipeline.correct_until_raman(raw, s, base="cartella/del/progetto")
 corrected = pipeline.finish_corrections(after_raman, s)
 indices = pipeline.compute_indices(after_raman, s)
 ds = pipeline.parafac_input(corrected, s)
@@ -438,7 +463,7 @@ exploration = pipeline.explore(ds, s)
 model, split = pipeline.fit_final(ds, s)
 pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
                         exploration=exploration, model=model, split=split)</code></pre>
-      <p>Un parametro senza valore predefinito, come il cammino ottico, ferma l'esecuzione con un messaggio che lo nomina.</p>
+      <p>Un parametro senza valore predefinito, come il cammino ottico, ferma l'esecuzione con un messaggio che lo nomina. <code>base</code> serve a trovare i file della correzione spettrale, se indicati con un percorso relativo al progetto.</p>
     </div>
 
     <div class="prose">
@@ -448,6 +473,9 @@ pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
           <thead><tr><th>Messaggio o situazione</th><th>Cosa fare</th></tr></thead>
           <tbody>
             <tr><td>«Enter both cuvette path lengths»</td><td>Inserisci i due cammini ottici nella scheda 2 (per l'Ombrone 1 cm).</td></tr>
+            <tr><td>«Spectral correction needs both the excitation and the emission file»</td><td>Scegli anche l'altro file, oppure togli quello scelto con <span class="ui">Clear</span>.</td></tr>
+            <tr><td>«… factors cover … nm, grid needs … nm»</td><td>Il file dei fattori non copre tutto l'intervallo degli EEM e ne serve uno che lo copra. Ritagliare non aiuta: la correzione spettrale si applica prima del ritaglio.</td></tr>
+            <tr><td>«cannot read» sotto il file dei fattori</td><td>Il file non ha due colonne numeriche (lunghezza d'onda, fattore). Controllalo in un editor di testo.</td></tr>
             <tr><td>«Load the data first» / «Apply the corrections first»</td><td>Manca un passo precedente: segui l'ordine delle schede.</td></tr>
             <tr><td>Errore della tabella degli abbinamenti</td><td>L'elenco indica riga e problema (file mancante, <code>sample_id</code> doppio, <code>include</code> non valido). Correggi e ricarica.</td></tr>
             <tr><td>«… sample(s) have no blank / absorbance»</td><td>Completa la tabella, oppure scegli <code>drop</code> in <span class="ui">Samples without blank or absorbance</span>.</td></tr>
@@ -465,7 +493,7 @@ pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
       <h2 id="limiti">Limiti attuali</h2>
       <ul>
         <li>Legge solo i CSV «ASCII with log» del Cary Eclipse (EEM 3-D) e del Cary 60 (assorbanza).</li>
-        <li>La correzione spettrale dello strumento è disponibile nella libreria (<code>eemkit.corrections.apply_spectral_correction</code>) ma non ancora nell'app.</li>
+        <li>eemkit non fornisce fattori di correzione spettrale: vanno misurati per il proprio strumento.</li>
         <li>Annullare un calcolo ha effetto solo alla fine del modello in corso.</li>
         <li>L'interfaccia è solo in inglese.</li>
         <li>L'app non salva i risultati nel progetto: riaprendolo vanno ricalcolati, oppure si usano i file esportati.</li>
