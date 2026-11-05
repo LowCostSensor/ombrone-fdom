@@ -127,9 +127,10 @@ td:first-child { white-space: nowrap; }
       <li><a href="#flusso">Il flusso di lavoro</a></li>
       <li><a href="#progetto">1 · Progetto e abbinamento</a></li>
       <li><a href="#correzioni">2 · Correzioni</a></li>
-      <li><a href="#indici">3 · Indici</a></li>
+      <li><a href="#indici">3 · Indici e CDOM</a></li>
       <li><a href="#parafac">4 · PARAFAC</a></li>
-      <li><a href="#export">5 · Esportazione</a></li>
+      <li><a href="#fiumi">5 · Fiumi e date</a></li>
+      <li><a href="#export">6 · Esportazione</a></li>
       <li><a href="#menu">Menu e salvataggio</a></li>
       <li><a href="#script">Rifare tutto da script</a></li>
       <li><a href="#problemi">Problemi comuni</a></li>
@@ -140,28 +141,34 @@ td:first-child { white-space: nowrap; }
   <main>
     <div class="prose">
       <h1 id="cos-e">Guida all'app eemkit</h1>
-      <p class="lede">Come usare l'applicazione desktop di eemkit per passare dai file CSV del Cary Eclipse e del Cary 60 a EEM corretti, indici di fluorescenza e un modello PARAFAC validato.</p>
-      <p class="meta">eemkit 0.1.0 · app in PySide6 · schermate fatte sui dati dell'Ombrone 2024 (Polvani et al. 2026, <a href="https://doi.org/10.1016/j.envpol.2026.127858">doi:10.1016/j.envpol.2026.127858</a>)</p>
+      <p class="lede">Come usare l'applicazione desktop di eemkit per passare dai file CSV del Cary Eclipse e del Cary 60 a EEM corretti, indici di fluorescenza, metriche CDOM, un modello PARAFAC validato e il confronto tra fiumi, siti e date.</p>
+      <p class="meta">eemkit, versione di sviluppo (novembre 2026) · app in PySide6 · schermate fatte sui dati dell'Ombrone 2024 (Polvani et al. 2026, <a href="https://doi.org/10.1016/j.envpol.2026.127858">doi:10.1016/j.envpol.2026.127858</a>)</p>
 
-      <p>L'app è un'interfaccia sopra la libreria eemkit: non fa calcoli suoi. Ogni pulsante chiama le stesse funzioni usate dagli script dell'Ombrone (<code>eemkit.pipeline</code>), e sui dati reali produce gli stessi risultati: il modello a 3 componenti ottenuto nell'app ha varianza spiegata 99,017 %, core consistency 85,5 % e split-half 0,9915, come nella Fase 4.</p>
+      <p>L'app è un'interfaccia sopra la libreria eemkit: non fa calcoli suoi. Ogni pulsante chiama le stesse funzioni usate dagli script dell'Ombrone (<code>eemkit.pipeline</code>), e sui dati reali produce gli stessi risultati: il modello a 3 componenti ottenuto nell'app ha varianza spiegata 99,017 %, core consistency 85,5 % e split-half 0,9915, come nell'analisi fatta con gli script.</p>
       <p>Le etichette dell'app sono in inglese. In questa guida le trovi scritte così: <span class="ui">Apply corrections</span>, cioè esattamente come appaiono sullo schermo.</p>
     </div>
 
     <div class="prose">
       <h2 id="avvio">Avviare l'app</h2>
-      <h3>Dall'ambiente conda (consigliato)</h3>
-      <pre><code>conda activate fdom-eem
-eemkit-gui</code></pre>
-      <p>Per aprire direttamente un progetto, passa il file come argomento:</p>
+      <h3>Da Python</h3>
+      <p>Serve Python 3.11 o più recente (su Windows, nell'installazione spunta <em>Add python.exe to PATH</em>). Poi, in un terminale (su Windows: <em>PowerShell</em> dal menu Start):</p>
+      <pre><code>python -m pip install "eemkit[gui] @ https://github.com/LowCostSensor/eemkit/archive/refs/heads/main.zip"
+python -m eemkit.gui</code></pre>
+      <p>Il primo comando installa eemkit da GitHub (non è ancora su PyPI); la parte <code>[gui]</code> serve per l'app. Il secondo la avvia. Per aprire direttamente un progetto, passa il file come argomento:</p>
       <pre><code>python -m eemkit.gui percorso\del\progetto.toml</code></pre>
+      <h3>Aggiornare un'installazione già fatta</h3>
+      <p>Finché il numero di versione non cambia, <code>--upgrade</code> non basta: serve reinstallare eemkit (le altre librerie restano):</p>
+      <pre><code>python -m pip install --force-reinstall --no-deps "eemkit @ https://github.com/LowCostSensor/eemkit/archive/refs/heads/main.zip"</code></pre>
 
       <h3>Il progetto dell'Ombrone, già pronto</h3>
       <p>Ho preparato <span class="path">ombrone-fdom/config/ombrone_project.toml</span>: contiene i parametri confermati in <code>config/processing.toml</code>, la cartella dei dati <code>data/raw</code> (la copia dei CSV nel repository), la tabella <code>config/pairing.csv</code> e una cartella di uscita <code>outputs/gui</code>, tutti relativi al file di progetto. Aprilo con <span class="ui">File</span> → <span class="ui">Open project…</span> e passa subito al punto 3 del <a href="#flusso">flusso</a>.</p>
+      <div class="note warn">
+        <span class="label">Tieni la tabella com'è</span>
+        <p><code>config/pairing.csv</code> contiene 22 righe escluse di proposito (per esempio FARMA 62 e FARMA DICEMBRE). Se per errore le includi tutte, riporta il file alla versione del repository con <code>git checkout -- config/pairing.csv</code>.</p>
+      </div>
 
       <h3>Eseguibile Windows (senza Python)</h3>
-      <p>Ho costruito una versione autonoma in <span class="path">%TEMP%\ekb\dist\eemkit\eemkit.exe</span> (circa 160 MB). Sta in una cartella temporanea che Windows può svuotare: per tenerla, copia l'intera cartella <code>eemkit</code>. Per ricostruirla, da un ambiente <em>attivato</em>:</p>
-      <pre><code>cd eemkit\packaging
-pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
+      <p>Ogni <a href="https://github.com/LowCostSensor/eemkit/releases">release</a> avrà una versione autonoma compressa (circa 160 MB una volta estratta): basta estrarla e avviare <code>eemkit.exe</code>.</p>
       <div class="note">
         <span class="label">Se l'eseguibile si chiude subito</span>
         <p>Il motivo è scritto in <span class="path">eemkit-crash.log</span> nella cartella temporanea (<code>%TEMP%</code>).</p>
@@ -171,7 +178,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
     <div class="prose">
       <h2 id="concetti">Cinque cose da sapere</h2>
       <ol>
-        <li><strong>Il progetto è un file di impostazioni.</strong> Salvare il progetto scrive un file <code>.toml</code> con tutti i parametri e i percorsi, nello stesso formato di <code>processing.toml</code>. Non salva i risultati: quelli si ricalcolano dal file, oppure si esportano dalla scheda 5.</li>
+        <li><strong>Il progetto è un file di impostazioni.</strong> Salvare il progetto scrive un file <code>.toml</code> con tutti i parametri e i percorsi, nello stesso formato di <code>processing.toml</code>. Non salva i risultati: quelli si ricalcolano dal file, oppure si esportano dal passo 6, <span class="ui">Export</span>.</li>
         <li><strong>La cartella dei dati è in sola lettura.</strong> L'app non scrive, non rinomina e non sposta nulla lì dentro, e rifiuta di salvarci progetto, tabella o risultati.</li>
         <li><strong>Nessun abbinamento silenzioso.</strong> L'app usa solo le righe della tabella degli abbinamenti con <code>include = yes</code>. Le righe proposte automaticamente partono sempre escluse.</li>
         <li><strong>I risultati non restano mai superati.</strong> Se cambi un parametro, l'app scarta i risultati che ne dipendevano: per esempio, cambiare la larghezza di una banda di scattering cancella i modelli PARAFAC già calcolati, che vanno ricalcolati.</li>
@@ -181,25 +188,26 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
 
     <div class="prose">
       <h2 id="flusso">Il flusso di lavoro</h2>
-      <p>Le cinque schede seguono l'ordine dell'analisi. Ogni passo usa il risultato del precedente.</p>
+      <p>I passi sono elencati nella barra a sinistra, nell'ordine dell'analisi; un ✓ segna quelli completati e sotto l'elenco c'è un riepilogo del progetto. Ogni passo usa il risultato del precedente. In ogni pagina il pulsante colorato è l'azione principale.</p>
       <ol class="flow">
-        <li><div><strong>Scegli le cartelle</strong> (scheda 1): dati, tabella degli abbinamenti, uscita. Oppure apri un progetto esistente.</div></li>
-        <li><div><strong>Prepara la tabella degli abbinamenti</strong> (scheda 1): aprila se esiste già; altrimenti scansiona la cartella, genera la bozza, controlla e includi le righe.</div></li>
+        <li><div><strong>Scegli le cartelle</strong> (passo 1): dati, tabella degli abbinamenti, uscita. Oppure apri un progetto esistente.</div></li>
+        <li><div><strong>Prepara la tabella degli abbinamenti</strong> (passo 1): aprila se esiste già; altrimenti scansiona la cartella, genera la bozza, controlla e includi le righe.</div></li>
         <li><div><strong>Carica i dati</strong> con <span class="ui">3. Check and load data</span>.</div></li>
-        <li><div><strong>Applica le correzioni</strong> (scheda 2) e controlla qualche campione nell'anteprima.</div></li>
-        <li><div><strong>Calcola gli indici</strong> (scheda 3).</div></li>
-        <li><div><strong>Esplora i modelli PARAFAC</strong> (scheda 4), guarda la diagnostica e i campioni anomali, poi calcola il modello finale.</div></li>
-        <li><div><strong>Esporta</strong> (scheda 5) e salva il progetto.</div></li>
+        <li><div><strong>Applica le correzioni</strong> (passo 2) e controlla qualche campione nell'anteprima.</div></li>
+        <li><div><strong>Calcola indici e metriche CDOM</strong> (passo 3).</div></li>
+        <li><div><strong>Esplora i modelli PARAFAC</strong> (passo 4), guarda la diagnostica e i campioni anomali, poi calcola il modello finale.</div></li>
+        <li><div><strong>Confronta fiumi, siti e date</strong> (passo 5), se ti serve.</div></li>
+        <li><div><strong>Esporta</strong> (passo 6) e salva il progetto.</div></li>
       </ol>
     </div>
 
     <section>
       <div class="prose">
         <h2 id="progetto">1 · Progetto e abbinamento</h2>
-        <p>Questa scheda decide quali file vengono letti e come sono abbinati tra loro.</p>
+        <p>Questa pagina decide quali file vengono letti e come sono abbinati tra loro.</p>
       </div>
       <figure>
-        <a href="img/1_project.png"><img src="img/1_project.png" alt="Scheda Project and pairing con la tabella degli abbinamenti dell'Ombrone" width="1500" height="950" loading="lazy"></a>
+        <a href="img/1_project.png"><img src="img/1_project.png" alt="Pagina Project and pairing con la tabella degli abbinamenti dell'Ombrone" width="1500" height="940" loading="lazy"></a>
         <figcaption>La tabella dell'Ombrone caricata: 227 righe, 205 incluse. In basso, il riquadro dei messaggi conferma la lettura di 205 campioni, tutti con bianco EEM e assorbanza.</figcaption>
       </figure>
       <div class="prose">
@@ -207,7 +215,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <ul>
           <li><span class="ui">Data folder</span>: la cartella con i CSV degli strumenti (per l'Ombrone, <span class="path">data/raw</span> nel repository ombrone-fdom).</li>
           <li><span class="ui">Pairing table</span>: il file CSV con gli abbinamenti. <span class="ui">Open…</span> ne apre uno esistente.</li>
-          <li><span class="ui">Output folder</span>: dove la scheda 5 scrive i risultati. Non può stare dentro la cartella dei dati.</li>
+          <li><span class="ui">Output folder</span>: dove il passo 6 scrive i risultati. Non può stare dentro la cartella dei dati.</li>
         </ul>
 
         <h3>I pulsanti, nell'ordine</h3>
@@ -217,7 +225,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
             <tbody>
               <tr><td><span class="ui">1. Scan data folder</span></td><td>Legge le prime due righe di ogni CSV (anche nelle sottocartelle) e lo classifica: EEM del Cary Eclipse 3-D, assorbanza del Cary 60, oppure non riconosciuto. I file <code>.FDSW</code> e <code>.BSW</code> sono ignorati. Il risultato è nella sotto-scheda <span class="ui">Files found</span>; i file non usati, con il motivo, compaiono nel riquadro dei messaggi.</td></tr>
               <tr><td><span class="ui">2. Draft pairing from scan</span></td><td>Propone una riga per ogni EEM che non è un bianco (vedi sotto). Se esiste già una tabella, chiede prima di sostituirla.</td></tr>
-              <tr><td><span class="ui">Include selected rows</span></td><td>Mette <code>include = yes</code> sulle righe selezionate e le segna come controllate (<code>pairing_status = checked</code>). Usalo solo dopo aver verificato quelle righe.</td></tr>
+              <tr><td><span class="ui">Include selected rows</span></td><td>Mette <code>include = yes</code> sulle righe selezionate e le segna come controllate (<code>pairing_status = checked</code>). Usalo solo dopo aver verificato quelle righe: selezionando tutto includi anche le righe escluse di proposito.</td></tr>
               <tr><td><span class="ui">Exclude selected rows</span></td><td>Mette <code>include = no</code>.</td></tr>
               <tr><td><span class="ui">Save pairing table</span></td><td>Scrive la tabella nel file indicato in <span class="ui">Pairing table</span> (o ne chiede uno nuovo).</td></tr>
               <tr><td><span class="ui">3. Check and load data</span></td><td>Salva la tabella, controlla che tutti i file delle righe incluse esistano e legge i dati. Il riquadro dei messaggi riporta campioni letti, intervalli di lunghezza d'onda, quanti hanno bianco e assorbanza, ed eventuali avvisi.</td></tr>
@@ -253,7 +261,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <p>A sinistra i parametri, a destra l'anteprima. L'ordine dei passaggi è fisso: correzione spettrale dello strumento (facoltativa), bianco dell'assorbanza, effetto filtro interno, sottrazione del bianco, unità Raman, scattering, ritaglio.</p>
       </div>
       <figure>
-        <a href="img/2_corrections.png"><img src="img/2_corrections.png" alt="Scheda Corrections con i parametri e l'anteprima di un EEM nei colori del Cary Eclipse" width="1500" height="950" loading="lazy"></a>
+        <a href="img/2_corrections.png"><img src="img/2_corrections.png" alt="Pagina Corrections con i parametri e l'anteprima di un EEM nei colori del Cary Eclipse" width="1500" height="940" loading="lazy"></a>
         <figcaption>Orcia, giugno, sito 6, replicato 2, dopo filtro interno, bianco e unità Raman, con i colori del Cary Eclipse (viola = basso, rosso = alto). La scala è limitata al massimo della fluorescenza, quindi le bande di scattering appaiono sature (rosse).</figcaption>
       </figure>
       <div class="prose">
@@ -304,24 +312,45 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
 
     <section>
       <div class="prose">
-        <h2 id="indici">3 · Indici</h2>
-        <p>FI (Cory &amp; McKnight 2005), HIX (Ohno 2002), BIX (Huguet et al. 2009) e i picchi di Coble (1996), calcolati sugli EEM in unità Raman, prima della rimozione dello scattering.</p>
+        <h2 id="indici">3 · Indici e CDOM</h2>
+        <p>FI (Cory &amp; McKnight 2005), HIX (Ohno 2002), BIX (Huguet et al. 2009) e i picchi di Coble (1996), calcolati sugli EEM in unità Raman, prima della rimozione dello scattering; nella stessa tabella, le metriche CDOM ricavate dagli spettri di assorbanza.</p>
       </div>
       <figure>
-        <a href="img/3_indices.png"><img src="img/3_indices.png" alt="Scheda Indices con la tabella e l'andamento di HIX per campagna e fiume" width="1500" height="950" loading="lazy"></a>
-        <figcaption>HIX per campagna, raggruppato per fiume: media ± deviazione standard tra siti e replicati, con i singoli campioni come punti chiari.</figcaption>
+        <a href="img/3_indices.png"><img src="img/3_indices.png" alt="Pagina Indices and CDOM con le impostazioni, la tabella e HIX per campagna e fiume" width="1500" height="940" loading="lazy"></a>
+        <figcaption>A sinistra le impostazioni degli indici e il riquadro <span class="ui">Absorbance (CDOM)</span>; a destra HIX per campagna, raggruppato per fiume: media ± deviazione standard tra siti e replicati, con i singoli campioni come punti chiari. Le colonne CDOM sono in fondo alla tabella.</figcaption>
       </figure>
       <div class="prose">
         <ul>
           <li><span class="ui">Excitations off the grid</span>: come trattare le eccitazioni non misurate (254, 275 e 312 nm su una griglia a passi di 10 nm). <code>linear</code> interpola tra le due scansioni vicine; <code>nearest</code> usa la più vicina; <code>exact</code> rifiuta.</li>
           <li><span class="ui">BIX denominator emission</span>: emissione al denominatore del BIX (430 nm in Huguet et al. 2009).</li>
-          <li><span class="ui">Compute indices</span> calcola la tabella; <span class="ui">Save table…</span> la salva in CSV.</li>
+          <li><span class="ui">Compute indices</span> calcola la tabella (indici e metriche CDOM); <span class="ui">Save table…</span> la salva in CSV.</li>
           <li>Il grafico si regola con <span class="ui">Show</span> (quale indice), <span class="ui">along</span> (asse x, per esempio <code>campaign</code>) e <span class="ui">grouped by</span> (per esempio <code>river</code>). I gruppi possono essere al massimo 8, uno per colore.</li>
         </ul>
         <div class="note warn">
           <span class="label">FI</span>
           <p>Senza correzione spettrale dello strumento, il FI vale circa 2 ed è confrontabile solo con misure fatte sullo stesso fluorimetro.</p>
         </div>
+
+        <h3>Metriche CDOM (riquadro <span class="ui">Absorbance (CDOM)</span>)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Metrica</th><th>Definizione</th><th>Fonte</th></tr></thead>
+            <tbody>
+              <tr><td><code>a254</code>, <code>a350</code></td><td>Coefficiente di assorbimento napieriano a = ln(10)·A/l, in m⁻¹.</td><td>Green &amp; Blough 1994</td></tr>
+              <tr><td><code>S275_295</code>, <code>S350_400</code></td><td>Pendenza di ln a(λ) contro λ nei due intervalli (regressione lineare), in nm⁻¹.</td><td>Helms et al. 2008</td></tr>
+              <tr><td><code>SR</code></td><td>S275_295 / S350_400.</td><td>Helms et al. 2008</td></tr>
+              <tr><td><code>E2_E3</code></td><td>A(250) / A(365).</td><td>De Haan &amp; De Boer 1987</td></tr>
+              <tr><td><code>SUVA254</code></td><td>A(254) per metro (decadica) / DOC, in L mg⁻¹ m⁻¹. Solo se scegli una colonna con il DOC in mg/L.</td><td>Weishaar et al. 2003</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li><span class="ui">Compute CDOM metrics from the absorbance spectra</span>: le calcola insieme agli indici. Il cammino ottico della cuvetta è quello del passo 2.</li>
+          <li><span class="ui">Baseline</span>: a ogni spettro si sottrae la sua assorbanza media fra 680 e 700 nm, dove il CDOM non assorbe (Green &amp; Blough 1994; Helms et al. 2008). Nei dati dell'Ombrone serve: sopra 350 nm il segnale è dello stesso ordine degli scostamenti della linea di base (±0,006).</li>
+          <li><span class="ui">Minimum R² of slope fits</span> (0,95): sotto questo valore la pendenza non viene riportata. È una soglia di qualità di eemkit, non un valore della letteratura: dichiarala.</li>
+          <li><span class="ui">DOC column (mg/L)</span>: una colonna della tabella degli abbinamenti con il DOC; serve per SUVA254.</li>
+          <li>Quando il segnale non basta (assorbanza ≤ 0 o fit scadente) la cella resta vuota e il motivo è nella colonna <code>cdom_notes</code>. Sull'Ombrone, con la cuvetta da 1 cm, SR c'è per 165 campioni su 205.</li>
+        </ul>
       </div>
     </section>
 
@@ -344,7 +373,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <h3>Vista «Number of components»</h3>
       </div>
       <figure>
-        <a href="img/4a_parafac_ranks.png"><img src="img/4a_parafac_ranks.png" alt="Tabella e grafici per scegliere il numero di componenti" width="1500" height="950" loading="lazy"></a>
+        <a href="img/4a_parafac_ranks.png"><img src="img/4a_parafac_ranks.png" alt="Tabella e grafici per scegliere il numero di componenti" width="1500" height="940" loading="lazy"></a>
         <figcaption>Una riga per numero di componenti, e sotto tre grafici separati: varianza spiegata, core consistency e congruenza minima dello split-half con la soglia di 0,95.</figcaption>
       </figure>
       <div class="prose">
@@ -366,7 +395,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <h3>Vista «Components by model»</h3>
       </div>
       <figure>
-        <a href="img/4d_parafac_by_model.png"><img src="img/4d_parafac_by_model.png" alt="Componenti del modello a 4 componenti con i modelli split-half" width="1500" height="950" loading="lazy"></a>
+        <a href="img/4d_parafac_by_model.png"><img src="img/4d_parafac_by_model.png" alt="Componenti del modello a 4 componenti con i modelli split-half" width="1500" height="940" loading="lazy"></a>
         <figcaption>Le componenti del modello scelto nel menu <span class="ui">Model</span>, qui quello a 4 componenti senza i 6 campioni dell'Orcia, che avevamo scartato. Sotto ogni EEM, i loading di eccitazione (tratteggio) e di emissione (linea piena); le linee grigie sono i sei modelli split-half. In C2 e C3 le linee grigie si separano e C3 ha due massimi di eccitazione poco plausibili: sono i segni di un modello con troppe componenti.</figcaption>
       </figure>
 
@@ -374,7 +403,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <h3>Vista «Outliers»</h3>
       </div>
       <figure>
-        <a href="img/4b_parafac_outliers.png"><img src="img/4b_parafac_outliers.png" alt="Leverage contro residui e tabella dei campioni ordinati per leverage" width="1500" height="950" loading="lazy"></a>
+        <a href="img/4b_parafac_outliers.png"><img src="img/4b_parafac_outliers.png" alt="Leverage contro residui e tabella dei campioni ordinati per leverage" width="1500" height="940" loading="lazy"></a>
         <figcaption>Leverage contro residui per il modello scelto, colorato per fiume. La tabella a destra ordina i campioni per leverage.</figcaption>
       </figure>
       <div class="prose">
@@ -388,17 +417,58 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <p>Nel riquadro <span class="ui">Final model</span> imposta numero di componenti, inizializzazioni (20), tolleranza (1e-8) e iterazioni massime, poi <span class="ui">Fit final model</span>. Il modello viene calcolato e validato di nuovo con lo split-half.</p>
       </div>
       <figure>
-        <a href="img/4c_parafac_final.png"><img src="img/4c_parafac_final.png" alt="Il modello finale a 3 componenti con il riepilogo" width="1500" height="950" loading="lazy"></a>
+        <a href="img/4c_parafac_final.png"><img src="img/4c_parafac_final.png" alt="Il modello finale a 3 componenti con il riepilogo" width="1500" height="940" loading="lazy"></a>
         <figcaption>Il modello finale dell'Ombrone (20 inizializzazioni, tutte allo stesso minimo). La riga in alto riassume varianza spiegata, core consistency, inizializzazioni al minimo e verdetto dello split-half.</figcaption>
       </figure>
     </section>
 
     <section>
       <div class="prose">
-        <h2 id="export">5 · Esportazione</h2>
+        <h2 id="fiumi">5 · Fiumi e date</h2>
+        <p>Confronta campagne, siti e fiumi su qualsiasi variabile della tabella degli indici o del modello finale: indici, metriche CDOM, Fmax di ogni componente e la sua quota sul totale (<code>C1_pct</code>, …).</p>
       </div>
       <figure>
-        <a href="img/5_export.png"><img src="img/5_export.png" alt="Scheda Export con le caselle dei file e i metadati OpenFluor" width="1500" height="950" loading="lazy"></a>
+        <a href="img/5a_rivers_time.png"><img src="img/5a_rivers_time.png" alt="Pagina Rivers and dates con HIX nel tempo per fiume e l'avviso di sovrapposizione tra fiumi e date" width="1678" height="940" loading="lazy"></a>
+        <figcaption>HIX per campagna, una linea per fiume: media ± deviazione standard tra i siti; ogni punto chiaro è la media delle repliche di un sito. In alto l'avviso: il Farma non è mai stato campionato negli stessi mesi di Merse e Orcia, quindi le differenze tra fiumi e tra mesi non si separano.</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>Le impostazioni</h3>
+        <ul>
+          <li><span class="ui">Variable</span>: la variabile da confrontare.</li>
+          <li><span class="ui">Group</span>, <span class="ui">Time</span>, <span class="ui">Site</span>: le colonne della tabella degli abbinamenti con fiume, campagna e sito (per l'Ombrone <code>river</code>, <code>campaign</code>, <code>site</code>).</li>
+          <li><span class="ui">Site table</span> (facoltativa): CSV con le colonne di gruppo e sito più, per esempio, latitudine, longitudine e <code>distance_km</code>; <span class="ui">Position along the river</span> sceglie la colonna che ordina i siti lungo il fiume.</li>
+          <li><span class="ui">Covariate table</span> (facoltativa): CSV con le colonne di gruppo e tempo, scritte esattamente come nei campioni (es. <code>2024-05</code>), più per esempio portata e pioggia.</li>
+          <li>Le tabelle si uniscono ai campioni solo se i valori coincidono esattamente; le righe senza corrispondenza vengono segnalate.</li>
+        </ul>
+
+        <h3>Cosa calcola</h3>
+        <ul>
+          <li><strong>Unità statistica.</strong> Le repliche di un sito in una data vengono mediate prima di ogni test, così non contano come campioni indipendenti (Hurlbert 1984). La tabella è in <span class="ui">Site means</span>.</li>
+          <li><strong>Avviso fiume–stagione.</strong> Se due fiumi non sono mai stati campionati nella stessa data, le loro differenze non si distinguono da quelle tra date: l'avviso resta in alto, sopra i risultati. Sull'Ombrone compare sempre, perché il Farma è stato campionato in mesi diversi da Merse e Orcia.</li>
+          <li><strong>Differenze tra campagne, dentro ogni fiume:</strong> Kruskal–Wallis e confronti a coppie di Dunn con correzione di Holm (vista <span class="ui">Tests</span>).</li>
+          <li><strong>Lungo il fiume e con le covariate:</strong> correlazione di Spearman con la posizione dei siti e con le covariate (vista <span class="ui">Correlations</span>).</li>
+          <li><strong>Composizione PARAFAC:</strong> la quota media di ogni componente per fiume e campagna (vista <span class="ui">PARAFAC composition</span>, dopo il modello finale).</li>
+        </ul>
+      </div>
+      <figure>
+        <a href="img/5b_rivers_composition.png"><img src="img/5b_rivers_composition.png" alt="Composizione PARAFAC per fiume e campagna" width="1678" height="940" loading="lazy"></a>
+        <figcaption>Quota media di ogni componente PARAFAC sul totale di Fmax, per fiume e campagna. Nel Merse la quota di C3 (simile al triptofano) cresce a giugno e luglio.</figcaption>
+      </figure>
+      <figure>
+        <a href="img/5c_rivers_tests.png"><img src="img/5c_rivers_tests.png" alt="Test di Kruskal–Wallis e di Dunn tra le campagne" width="1678" height="940" loading="lazy"></a>
+        <figcaption>Vista <span class="ui">Tests</span> per HIX: Kruskal–Wallis tra le campagne dentro ogni fiume (p = 0,015 nel Farma, 0,0007 nel Merse, 0,90 nell'Orcia) e, sotto, i confronti a coppie di Dunn con i p corretti con Holm.</figcaption>
+      </figure>
+      <div class="prose">
+        <p><span class="ui">Save to output folder</span> scrive tabelle e figure in <code>campaigns/&lt;variabile&gt;/</code> nella cartella di uscita, con un file di note che riporta il metodo e gli avvisi.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="prose">
+        <h2 id="export">6 · Esportazione</h2>
+      </div>
+      <figure>
+        <a href="img/6_export.png"><img src="img/6_export.png" alt="Pagina Export con le caselle dei file e i metadati OpenFluor" width="1678" height="940" loading="lazy"></a>
         <figcaption>Cosa scrivere a sinistra, metadati OpenFluor a destra; sotto, l'elenco dei file scritti.</figcaption>
       </figure>
       <div class="prose">
@@ -414,7 +484,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
               <tr><td><code>settings.toml</code></td><td>Tutte le impostazioni usate (sempre scritto).</td></tr>
               <tr><td><code>processing_record.json</code></td><td>Versioni del software, ogni passaggio di elaborazione con i suoi parametri, elenco dei campioni, statistiche del modello (sempre scritto).</td></tr>
               <tr><td><code>corrected_eems.nc</code></td><td>EEM corretti, in netCDF, con la cronologia dei passaggi.</td></tr>
-              <tr><td><code>indices.csv</code></td><td>Indici e picchi per campione, con i metadati.</td></tr>
+              <tr><td><code>indices.csv</code></td><td>Indici, picchi e metriche CDOM per campione, con i metadati.</td></tr>
               <tr><td><code>parafac_exploration.csv</code></td><td>La tabella «Number of components».</td></tr>
               <tr><td><code>parafac_3comp_fmax.csv</code></td><td>Fmax di ogni componente per campione, in unità Raman.</td></tr>
               <tr><td><code>parafac_3comp_ex_loadings.csv</code><br><code>parafac_3comp_em_loadings.csv</code></td><td>Loading di eccitazione ed emissione.</td></tr>
@@ -435,6 +505,7 @@ pyinstaller eemkit-gui.spec --noconfirm --distpath C:\tmp\dist</code></pre>
         <li>Un asterisco nel titolo della finestra (<code>eemkit - project.toml *</code>) indica modifiche non salvate; chiudendo, l'app chiede se salvarle.</li>
         <li>Nel progetto i percorsi sotto la cartella del file vengono salvati come relativi, così il progetto si può spostare insieme ai suoi file.</li>
         <li>Aprendo un progetto, la tabella degli abbinamenti indicata viene caricata da sola; i dati vanno riletti con <span class="ui">3. Check and load data</span>.</li>
+        <li><span class="ui">View</span> → <span class="ui">Theme</span> sceglie il tema chiaro o scuro, oppure segue il sistema; è una preferenza del computer, non del progetto.</li>
         <li><span class="ui">View</span> → <span class="ui">EEM colours</span> sceglie i colori degli EEM (vedi sotto).</li>
         <li><span class="ui">Help</span> → <span class="ui">About eemkit</span> mostra la versione, i metodi e le versioni delle librerie.</li>
       </ul>
@@ -458,11 +529,15 @@ raw = pipeline.load(s, base="cartella/del/progetto")
 after_raman = pipeline.correct_until_raman(raw, s, base="cartella/del/progetto")
 corrected = pipeline.finish_corrections(after_raman, s)
 indices = pipeline.compute_indices(after_raman, s)
+indices = indices.join(pipeline.compute_absorbance(after_raman, s))
 ds = pipeline.parafac_input(corrected, s)
 exploration = pipeline.explore(ds, s)
 model, split = pipeline.fit_final(ds, s)
 pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
-                        exploration=exploration, model=model, split=split)</code></pre>
+                        exploration=exploration, model=model, split=split)
+table = pipeline.sample_table(indices, model)
+res = pipeline.campaign_analysis(table, "HIX", s, base="cartella/del/progetto")
+pipeline.export_campaigns("risultati/campaigns/HIX", res, s)</code></pre>
       <p>Un parametro senza valore predefinito, come il cammino ottico, ferma l'esecuzione con un messaggio che lo nomina. <code>base</code> serve a trovare i file della correzione spettrale, se indicati con un percorso relativo al progetto.</p>
     </div>
 
@@ -472,15 +547,17 @@ pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
         <table>
           <thead><tr><th>Messaggio o situazione</th><th>Cosa fare</th></tr></thead>
           <tbody>
-            <tr><td>«Enter both cuvette path lengths»</td><td>Inserisci i due cammini ottici nella scheda 2 (per l'Ombrone 1 cm).</td></tr>
+            <tr><td>«Enter both cuvette path lengths»</td><td>Inserisci i due cammini ottici nel passo 2 (per l'Ombrone 1 cm).</td></tr>
             <tr><td>«Spectral correction needs both the excitation and the emission file»</td><td>Scegli anche l'altro file, oppure togli quello scelto con <span class="ui">Clear</span>.</td></tr>
             <tr><td>«… factors cover … nm, grid needs … nm»</td><td>Il file dei fattori non copre tutto l'intervallo degli EEM e ne serve uno che lo copra. Ritagliare non aiuta: la correzione spettrale si applica prima del ritaglio.</td></tr>
             <tr><td>«cannot read» sotto il file dei fattori</td><td>Il file non ha due colonne numeriche (lunghezza d'onda, fattore). Controllalo in un editor di testo.</td></tr>
-            <tr><td>«Load the data first» / «Apply the corrections first»</td><td>Manca un passo precedente: segui l'ordine delle schede.</td></tr>
+            <tr><td>«Load the data first» / «Apply the corrections first»</td><td>Manca un passo precedente: segui l'ordine dei passi.</td></tr>
             <tr><td>Errore della tabella degli abbinamenti</td><td>L'elenco indica riga e problema (file mancante, <code>sample_id</code> doppio, <code>include</code> non valido). Correggi e ricarica.</td></tr>
             <tr><td>«… sample(s) have no blank / absorbance»</td><td>Completa la tabella, oppure scegli <code>drop</code> in <span class="ui">Samples without blank or absorbance</span>.</td></tr>
             <tr><td><span class="ui">⚠ N warnings</span> dopo la PARAFAC</td><td>Leggi gli avvisi. «did not converge»: aumenta <span class="ui">Max iterations</span> e ricalcola.</td></tr>
-            <tr><td>I risultati di una scheda sono spariti</td><td>Hai cambiato un parametro da cui dipendevano: ricalcolali.</td></tr>
+            <tr><td>I risultati di una pagina sono spariti</td><td>Hai cambiato un parametro da cui dipendevano: ricalcolali.</td></tr>
+            <tr><td>«CDOM metrics: N sample(s) with values left empty»</td><td>Normale con assorbanze basse: il motivo di ogni cella vuota è in <code>cdom_notes</code>. Per acque limpide serve una cuvetta più lunga.</td></tr>
+            <tr><td>Avviso «… were never sampled at the same …»</td><td>Fiumi e date sono sovrapposti nel disegno di campionamento: confronta le date dentro ogni fiume, non i fiumi tra loro.</td></tr>
             <tr><td>Il grafico degli indici non compare</td><td>La colonna scelta in <span class="ui">grouped by</span> ha più di 8 gruppi: scegline un'altra.</td></tr>
             <tr><td>«The data folder is read only»</td><td>Salva progetto, tabella o risultati fuori dalla cartella dei dati.</td></tr>
             <tr><td>L'eseguibile si chiude all'avvio</td><td>Leggi <code>%TEMP%\eemkit-crash.log</code>.</td></tr>
@@ -493,6 +570,7 @@ pipeline.export_results("risultati", s, corrected=corrected, indices=indices,
       <h2 id="limiti">Limiti attuali</h2>
       <ul>
         <li>Legge solo i CSV «ASCII with log» del Cary Eclipse (EEM 3-D) e del Cary 60 (assorbanza).</li>
+        <li>Le date delle tabelle facoltative si abbinano solo se scritte esattamente come nei campioni.</li>
         <li>eemkit non fornisce fattori di correzione spettrale: vanno misurati per il proprio strumento.</li>
         <li>Annullare un calcolo ha effetto solo alla fine del modello in corso.</li>
         <li>L'interfaccia è solo in inglese.</li>
