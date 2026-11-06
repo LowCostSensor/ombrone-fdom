@@ -13,6 +13,7 @@ staRdom definition so that the comparison tests the implementation:
 
 Usage:
     python scripts/benchmark_compare.py --out outputs/benchmark
+    python scripts/benchmark_compare.py --engine nway   # after scripts/benchmark_nway.m
 """
 
 from __future__ import annotations
@@ -165,7 +166,59 @@ def indices(inp: Path, sd: Path, cfg: dict) -> tuple[dict, list[str]]:
     return res, lines
 
 
-def parafac(sd: Path, final: Path, out: Path) -> tuple[dict, list[str]]:
+def parafac(sd: Path, final: Path, out: Path, engine: str = "staRdom"
+            ) -> tuple[dict, list[str]]:
+    if engine != "staRdom":
+        return parafac_other(sd, final, out, engine)
+    return _parafac_stardom(sd, final, out)
+
+
+def parafac_other(sd: Path, final: Path, out: Path, engine: str) -> tuple[dict, list[str]]:
+    """eemkit's final model against another engine's files (e.g. the N-way toolbox)."""
+    ek_ex = pd.read_csv(final / "ex_loadings.csv", index_col="ex")
+    ek_em = pd.read_csv(final / "em_loadings.csv", index_col="em")
+    o_ex = pd.read_csv(sd / "pf_ex_loadings.csv", index_col="ex")
+    o_em = pd.read_csv(sd / "pf_em_loadings.csv", index_col="em")
+    info = pd.read_csv(sd / "pf_info.csv").iloc[0]
+    assert np.allclose(ek_ex.index, o_ex.index) and np.allclose(ek_em.index, o_em.index)
+    order, tex, tem = match_components(ek_ex.values, ek_em.values, o_ex.values, o_em.values)
+    ek_f = pd.read_csv(final / "fmax.csv", index_col="sample")
+    ek_f = ek_f[[c for c in ek_f.columns if c.endswith("_Fmax")]]
+    o_f = pd.read_csv(sd / "pf_fmax.csv", index_col="sample").iloc[:, order].reindex(ek_f.index)
+    model = xr.load_dataset(final / f"model_{len(order)}.nc", engine="scipy")
+    rows, res = [], {"engine": engine, "components": []}
+    for k in range(len(order)):
+        a, b = ek_f.iloc[:, k].to_numpy(), o_f.iloc[:, k].to_numpy()
+        ratio = b / a
+        res["components"].append({"component": f"C{k + 1}", "tcc_ex": float(tex[k]),
+                                  "tcc_em": float(tem[k]),
+                                  "fmax_pearson_r": float(np.corrcoef(a, b)[0, 1]),
+                                  "fmax_ratio_median": float(np.median(ratio))})
+        rows.append(f"| C{k + 1} | {tex[k]:.4f} | {tem[k]:.4f} | "
+                    f"{np.corrcoef(a, b)[0, 1]:.5f} | {np.median(ratio):.4f} |")
+    res["min_tcc"] = float(min(tex.min(), tem.min()))
+    res["passed"] = res["min_tcc"] > TCC_THRESHOLD
+    res["other"] = {k: (v.item() if hasattr(v, "item") else v) for k, v in info.items()}
+    cc = info.get("corcondia")
+    lines = [f"## PARAFAC: eemkit vs {engine}", "",
+             f"Same input: eemkit's corrected EEMs of the {len(ek_f)} samples in the final model. "
+             f"{info.get('engine', engine)}: {int(info['nstart'])} random starts, convergence "
+             f"{info['ctol']:g}, non-negativity, samples scaled to unit norm as in eemkit.", "",
+             f"| | eemkit | {engine} |", "|---|---|---|",
+             f"| explained variance | {model.attrs['explained_variance_pct']:.3f} % | "
+             f"{100 * info['rsq']:.3f} % |",
+             f"| core consistency | {model.attrs['core_consistency_pct']:.1f} % | "
+             + (f"{cc:.1f} % |" if pd.notna(cc) else "n/a |"),
+             f"| starts at the best minimum | {model.attrs['n_init_at_best_minimum']}/"
+             f"{model.attrs['n_init']} | {100 * info['converged_fraction']:.0f} % |", "",
+             "| component | TCC ex | TCC em | Fmax Pearson r | Fmax ratio median |",
+             "|---|---|---|---|---|", *rows, "",
+             f"**Minimum TCC {res['min_tcc']:.4f}: {'PASSED' if res['passed'] else 'FAILED'}** "
+             f"(criterion > {TCC_THRESHOLD}).", ""]
+    return res, lines
+
+
+def _parafac_stardom(sd: Path, final: Path, out: Path) -> tuple[dict, list[str]]:
     ek_ex = pd.read_csv(final / "ex_loadings.csv", index_col="ex")
     ek_em = pd.read_csv(final / "em_loadings.csv", index_col="em")
     sr_ex = pd.read_csv(sd / "pf_ex_loadings.csv", index_col="ex")
@@ -269,7 +322,18 @@ def main() -> None:
     ap.add_argument("--config", default=Path("config/processing.toml"), type=Path)
     ap.add_argument("--final", default=Path("outputs/parafac_final"), type=Path)
     ap.add_argument("--out", default=Path("outputs/benchmark"), type=Path)
+    ap.add_argument("--engine", choices=("stardom", "nway"), default="stardom",
+                    help="nway: compare only the PARAFAC model with scripts/benchmark_nway.m "
+                         "(MATLAB, N-way toolbox as bundled with drEEM)")
     args = ap.parse_args()
+    if args.engine == "nway":
+        res, lines = parafac(args.out / "nway", args.final, args.out,
+                             engine="N-way toolbox (drEEM)")
+        (args.out / "benchmark_nway.json").write_text(json.dumps(res, indent=2),
+                                                      encoding="utf-8")
+        (args.out / "benchmark_nway.md").write_text("\n".join(lines), encoding="utf-8")
+        print("\n".join(lines))
+        return
     cfg = load_config(args.config)
     inp, sd = args.out / "input", args.out / "stardom"
 

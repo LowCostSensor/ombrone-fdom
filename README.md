@@ -77,6 +77,21 @@ Rscript scripts/benchmark_stardom.R parafac outputs/benchmark/input outputs/benc
 python scripts/benchmark_compare.py
 ```
 
+The PARAFAC fit can also be compared with the N-way toolbox, the engine of
+drEEM (MATLAB). After `benchmark_export.py`, in MATLAB, from this folder,
+with drEEM (or the N-way toolbox) on the path:
+
+```matlab
+addpath scripts
+benchmark_nway('outputs/benchmark/input', 'outputs/benchmark/nway', 3, 20, 20000)
+```
+
+then:
+
+```bash
+python scripts/benchmark_compare.py --engine nway
+```
+
 Or open `config/ombrone_project.toml` in the eemkit desktop application
 (`eemkit-gui`) and follow the [guide](docs/guida_app/app_guide_eemkit_en.html).
 
