@@ -32,7 +32,8 @@ also serves as its validation against the R package staRdom.
   values, excitation ≥ 240 nm. No instrument spectral correction.
 * PARAFAC on 199 samples (six Orcia samples of May 2024, sites 5 and 6, left
   out as outliers): three components, explained variance 99.02 %, core
-  consistency 85.5 %, split-half validated (minimum Tucker congruence 0.9915).
+  consistency 75.0 % (computed as the N-way toolbox and drEEM do), split-half
+  validated (minimum Tucker congruence 0.9915).
 
 | component | excitation max (nm) | emission max (nm) | interpretation |
 |---|---|---|---|
@@ -43,6 +44,9 @@ also serves as its validation against the R package staRdom.
 * Benchmark against staRdom 1.1.32: corrected EEMs agree to a median relative
   difference of 2.2 × 10⁻⁴, indices to machine precision (HIX 3 × 10⁻⁴), and
   the PARAFAC loadings with Tucker congruence ≥ 0.999.
+* Benchmark against drEEM 2.26.03 (MATLAB R2024b), both engines (N-way toolbox
+  and parafac3w): the same model, Tucker congruence ≥ 0.9999, Fmax
+  correlation 1.00000, explained variance 99.017 % for all three.
 
 ## Reproduce
 
@@ -77,19 +81,23 @@ Rscript scripts/benchmark_stardom.R parafac outputs/benchmark/input outputs/benc
 python scripts/benchmark_compare.py
 ```
 
-The PARAFAC fit can also be compared with the N-way toolbox, the engine of
-drEEM (MATLAB). After `benchmark_export.py`, in MATLAB, from this folder,
-with drEEM (or the N-way toolbox) on the path:
+The PARAFAC fit can also be compared with drEEM's two engines (MATLAB):
+the N-way toolbox and `parafac3w`, drEEM 2's default for non-negative models.
+Install drEEM 2 (MATLAB Add-Ons, or the `.mltbx` file from
+[Zenodo](https://doi.org/10.5281/zenodo.19215516)); the N-way toolbox comes
+with it. After `benchmark_export.py`, in MATLAB, from this folder:
 
 ```matlab
 addpath scripts
-benchmark_nway('outputs/benchmark/input', 'outputs/benchmark/nway', 3, 20, 20000)
+benchmark_nway('outputs/benchmark/input', 'outputs/benchmark/nway', 3, 20, 20000, 'nway')
+benchmark_nway('outputs/benchmark/input', 'outputs/benchmark/parafac3w', 3, 20, 20000, 'parafac3w')
 ```
 
 then:
 
 ```bash
 python scripts/benchmark_compare.py --engine nway
+python scripts/benchmark_compare.py --engine parafac3w
 ```
 
 Or open `config/ombrone_project.toml` in the eemkit desktop application

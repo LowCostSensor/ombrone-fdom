@@ -13,7 +13,8 @@ staRdom definition so that the comparison tests the implementation:
 
 Usage:
     python scripts/benchmark_compare.py --out outputs/benchmark
-    python scripts/benchmark_compare.py --engine nway   # after scripts/benchmark_nway.m
+    python scripts/benchmark_compare.py --engine nway       # after scripts/benchmark_nway.m
+    python scripts/benchmark_compare.py --engine parafac3w
 """
 
 from __future__ import annotations
@@ -37,6 +38,8 @@ from eemkit import indices as I
 from eemkit.parafac.diagnostics import match_components
 
 TCC_THRESHOLD = 0.95
+# output folders of scripts/benchmark_nway.m -> names in the report
+MATLAB_ENGINES = {"nway": "N-way toolbox (drEEM)", "parafac3w": "drEEM parafac3w"}
 
 
 def read_eems(path: Path) -> xr.DataArray:
@@ -200,6 +203,7 @@ def parafac_other(sd: Path, final: Path, out: Path, engine: str) -> tuple[dict, 
     res["passed"] = res["min_tcc"] > TCC_THRESHOLD
     res["other"] = {k: (v.item() if hasattr(v, "item") else v) for k, v in info.items()}
     cc = info.get("corcondia")
+    n_same = round(info.get("same_minimum_fraction", info["converged_fraction"]) * info["nstart"])
     lines = [f"## PARAFAC: eemkit vs {engine}", "",
              f"Same input: eemkit's corrected EEMs of the {len(ek_f)} samples in the final model. "
              f"{info.get('engine', engine)}: {int(info['nstart'])} random starts, convergence "
@@ -210,7 +214,11 @@ def parafac_other(sd: Path, final: Path, out: Path, engine: str) -> tuple[dict, 
              f"| core consistency | {model.attrs['core_consistency_pct']:.1f} % | "
              + (f"{cc:.1f} % |" if pd.notna(cc) else "n/a |"),
              f"| starts at the best minimum | {model.attrs['n_init_at_best_minimum']}/"
-             f"{model.attrs['n_init']} | {100 * info['converged_fraction']:.0f} % |", "",
+             f"{model.attrs['n_init']} | {n_same}/{int(info['nstart'])} |",
+             *([f"| starts converged before maxit | | "
+                f"{round(info['converged_fraction'] * info['nstart'])}/{int(info['nstart'])} |"]
+               if "same_minimum_fraction" in info else []),
+             *([f"| time | | {info['seconds']:.0f} s |"] if "seconds" in info else []), "",
              "| component | TCC ex | TCC em | Fmax Pearson r | Fmax ratio median |",
              "|---|---|---|---|---|", *rows, "",
              f"**Minimum TCC {res['min_tcc']:.4f}: {'PASSED' if res['passed'] else 'FAILED'}** "
@@ -322,16 +330,17 @@ def main() -> None:
     ap.add_argument("--config", default=Path("config/processing.toml"), type=Path)
     ap.add_argument("--final", default=Path("outputs/parafac_final"), type=Path)
     ap.add_argument("--out", default=Path("outputs/benchmark"), type=Path)
-    ap.add_argument("--engine", choices=("stardom", "nway"), default="stardom",
-                    help="nway: compare only the PARAFAC model with scripts/benchmark_nway.m "
-                         "(MATLAB, N-way toolbox as bundled with drEEM)")
+    ap.add_argument("--engine", choices=("stardom", *MATLAB_ENGINES), default="stardom",
+                    help="nway / parafac3w: compare only the PARAFAC model with the output of "
+                         "scripts/benchmark_nway.m (MATLAB, drEEM's engines)")
     args = ap.parse_args()
-    if args.engine == "nway":
-        res, lines = parafac(args.out / "nway", args.final, args.out,
-                             engine="N-way toolbox (drEEM)")
-        (args.out / "benchmark_nway.json").write_text(json.dumps(res, indent=2),
-                                                      encoding="utf-8")
-        (args.out / "benchmark_nway.md").write_text("\n".join(lines), encoding="utf-8")
+    if args.engine in MATLAB_ENGINES:
+        res, lines = parafac(args.out / args.engine, args.final, args.out,
+                             engine=MATLAB_ENGINES[args.engine])
+        (args.out / f"benchmark_{args.engine}.json").write_text(json.dumps(res, indent=2),
+                                                                encoding="utf-8")
+        (args.out / f"benchmark_{args.engine}.md").write_text("\n".join(lines),
+                                                              encoding="utf-8")
         print("\n".join(lines))
         return
     cfg = load_config(args.config)

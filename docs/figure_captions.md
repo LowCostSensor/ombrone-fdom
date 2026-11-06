@@ -18,10 +18,11 @@ median total Fmax of its river. Common colour scale.
 
 **Figure 3.** Choice of the number of PARAFAC components (199 samples; Orcia May
 2024 sites 5-6 excluded). Explained variance, core consistency (Bro & Kiers
-2003) and minimum Tucker congruence of the split-half validation (S4C6T3,
+2003, computed as the N-way toolbox; Andersson & Bro 2000) and minimum Tucker
+congruence of the split-half validation (S4C6T3,
 Murphy et al. 2013), with the 0.95 threshold (Lorenzo-Seva & ten Berge 2006).
 The circled 3-component model was retained. The 7-component model passes the
-split-half test but has a core consistency of -3639 %.
+split-half test but has a core consistency of 1.7 %.
 
 **Figure 4.** The three PARAFAC components. Top: component EEMs (outer product
 of the loadings). Bottom: excitation (dashed) and emission (solid) loadings,

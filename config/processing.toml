@@ -67,7 +67,9 @@ random_state = 0
 threshold = 0.95                  # Tucker congruence, Lorenzo-Seva & ten Berge (2006)
 
 [parafac.final]
-# Chosen by the data owner on 2026-10-29: 3 components (split-half validated, CORCONDIA 85 %).
+# Chosen by the data owner on 2026-10-29: 3 components (split-half validated, CORCONDIA 85 %
+# as computed by eemkit 0.1; 75 % with the N-way toolbox computation adopted on 2026-11-06,
+# which also lowers the overfactored ranks to 25 % or less, so the choice stands).
 rank = 3
 tol = 1e-8
 max_iter = 20000
